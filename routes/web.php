@@ -113,7 +113,13 @@ Route::group(['middleware' => ['auth', 'web']], function () {
   Route::get('/project-status/{id}', [App\Http\Controllers\ProjectController::class, 'updateProjectStatus'])->name('project-status');
 
 
-
+ // Menus
+ Route::resource('Menus', 'App\Http\Controllers\MenuController');
+ Route::get('menu-list/{id}', 'App\Http\Controllers\MenuController@menuData');
+ Route::get('menu-index', 'App\Http\Controllers\MenuController@index');
+ Route::post('menu-list/upload', 'App\Http\Controllers\MenuController@upload');
+ Route::get('menu-order/{id}', 'App\Http\Controllers\MenuController@orderData')->name('menu.orderData');
+ Route::post('menu-sortable', 'App\Http\Controllers\MenuController@sortData');
 
 
 // ACL 

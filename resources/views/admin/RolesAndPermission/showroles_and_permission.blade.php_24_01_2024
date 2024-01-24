@@ -12,6 +12,11 @@
 </div>
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" />
 
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" />
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <link href="/css/treeview.css" rel="stylesheet">
+
 <main class="py-4">
     <div class="content d-flex flex-column flex-column-fluid" id="kt_content">
 
@@ -64,16 +69,16 @@
                         </div>
                     </div>
                 </div>
-                <div class="card-body pt-8">
+                <!-- <div class="card-body pt-8"> -->
 
-                    <div class="col-xl-12">
+                    <!-- <div class="col-xl-12"> -->
                         <div class="card card-flush h-lg-100" id="kt_contacts_main">
 
-                            <div style="display:none" class="card-header pt-7" id="kt_chat_contacts_header">
+                            <!-- <div style="display:none" class="card-header pt-7" id="kt_chat_contacts_header">
 
                                 <div style="display:none" class="card-title">
                                 </div>
-                            </div>
+                            </div> -->
                             
                             @if(session('message'))
                             <div class="alert alert-success">
@@ -105,50 +110,62 @@
                             </style>
                             
 
-                            <div class="card-body pt-5">
+                            <!-- <div class="card-body "> -->
                                 <form method="POST" id="form" action="{{ route('showroles_and_permissions') }}">
                                     @csrf
-                                    <div class="row row-cols-2 row-cols-sm-3 rol-cols-md-1 row-cols-lg-2">
-                                        <div class="col">
-                                            <div class="fv-row mb-2">
-                                                <label class="fs-6 fw-bold form-label mt-3">
-                                                    <span class="border-span">❂ Assign Permissions To Role :</span>
-                                                </label>
-                                                <select class="form-control" id="role" name="role"
-                                                    data-url="{{ route('fetchPermission') }}">
-                                                    <option value="">select</option>
+                                    <div class="panel panel-primary " style="margin-bottom:0px">
+                                    <div class="panel-heading">❂ Assign Permissions To Role</div>
+                                    <div class="panel-body">
+                                        <!-- <div class="row">
+                                            <div class="col"> -->
+                                            <!-- <span class="border-span">❂ Assign Permissions To Role :</span> -->
 
-                                                    @foreach ($Ads as $role)
+                                                <ul id="tree1">
+                                                    @foreach($roles as $role)
+                                                        <li >
+                                                        <input type="checkbox" name="roles[]" value="{{ $role->id }}" checked> {{ $role->name }}
 
-                                                    <option value="{{ $role->id }}">{{ $role->name }}</option>
 
+                                                            
+                                                                <ul id="tree1">
+                                                                    @foreach($allPermissions as $permission)
+                                                                        <li>
+                                                                        <input type="checkbox" 
+                                                                        name="permissions[]" 
+                                                                        value="{{ $permission->id }}" 
+                                                                        @if ($role->permissions->contains('id', $permission->id)) checked @endif
+                                                                    > {{ $permission->name }}
+                                                                        </li>
+                                                                    @endforeach
+                                                                </ul>
+                                                            
+                                                    
+                                                        </li>
                                                     @endforeach
-                                                </select>
+                                                </ul>
+                                            <!-- </div>
+                                        </div> -->
+                                        <div  class="mb-5"style="float:right;">
+
+                                            <div class="d-flex justify-content-end ">
+                                                <a href="/showroles_and_permission" class="btn btn-outline-danger"
+                                                    style="margin-right:10px;">Cancel</a>
+                                                <button type="submit" id="submit" data-kt-contacts-type="submit"
+                                                    class="btn btn-primary">
+                                                    <span class="indicator-label">Save</span>
+                                                </button>
                                             </div>
-                                            <span id="Error" style="color:red;"></span>
-                                        </div>
-                                        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-                                    </div>
-                                    <br>
-                                    <div id="fetch" class="my-5" style="padding-left:20px">
-                                    </div>
-                                    <div style="float:right;">
 
-                                        <div class="d-flex justify-content-end">
-                                            <a href="/showroles_and_permission" class="btn btn-outline-danger"
-                                                style="margin-right:10px;">Cancel</a>
-                                            <button type="submit" id="submit" data-kt-contacts-type="submit"
-                                                class="btn btn-primary">
-                                                <span class="indicator-label">Save</span>
-                                            </button>
                                         </div>
-
                                     </div>
-                                </form>
-                            </div>
+                                    </div>
+                                   
+                                </form>                           
+                                
+                            <!-- </div> -->
                         </div>
-                    </div>
-                </div>
+                    <!-- </div> -->
+                <!-- </div> -->
             </div>
         </div>
     </div>
@@ -176,6 +193,7 @@
    
 
     </style>
+     <script src="/js/treeview.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         var alertElement = document.querySelector('.alert-success');
