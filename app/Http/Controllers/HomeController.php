@@ -25,4 +25,15 @@ class HomeController extends Controller
     {
         return view('admin.common.main');
     }
+
+
+    public function storeSelectedMenuItemId(Request $request)
+    {
+        $menuItemId = $request->input('menuItemId');
+       
+        session()->forget('selected_menu_item_id');
+        session(['selected_menu_item_id' => $menuItemId]);
+
+        return response()->json(['success' => true, 'treecode' => '']);
+    }
 }

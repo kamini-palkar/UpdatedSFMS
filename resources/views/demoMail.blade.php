@@ -8,7 +8,7 @@
 <body>
 
     <p>Hello,</p>
-    <!-- <p>{{ $body }}</p> -->
+    <p>{{ $body }}</p>
 
     <table border="1" style="border-collapse: collapse; width: 80%;">
         <tr>

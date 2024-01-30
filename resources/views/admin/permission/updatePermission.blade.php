@@ -128,6 +128,51 @@
 
                                             </div>
                                         </div>
+
+                                        <div class="col">
+                                        <div class="fv-row mb-2">  
+                                            <label class="fs-6 fw-bold form-label ">
+                                                <span class="">Menu</span>
+                                                <span style="color: red;">*</span>
+                                            </label>
+                                            <select name="menu_id" id="menu_id"
+                                                        class="form-control form-control-solids"
+                                                        style="border: 1px solid black; padding-top:0px; padding-bottom:0px;" >
+
+                                                        <option value="">select menu</option>
+                                                        @foreach($Menus as $key=>$value)
+                                                    <option value="{{$value->id}}" @if($value->id == $edit->menu_id)
+                                                        selected @endif>{{$value->title}}</option>
+                                                    @endforeach
+                                            </select>
+                                            <span id="roleError"  style="color:red;"></span>
+                                            @error('role_id')
+                                            <div id="Errormsg">{{ $message }}</div>
+                                            @enderror
+                                            
+                                        </div>
+                                    </div>
+                                        <div class="col">
+                                            <div class="fv-row mb-2">
+                                                <label class="fs-6 fw-bold form-label ">
+                                                <span class="">SubMenu</span><span style="color: red;">*</span>
+                                                </label>
+                                                <select name="submenu_id" id="submenu_id"
+                                                            class="form-control form-control-solids"
+                                                            style="border: 1px solid black; padding-top:0px; padding-bottom:0px;" >
+
+                                                            <option value="">select SubMenu</option>
+                                                         
+                                                         
+                                                </select>
+                                                <span id="project"  style="color:red;"></span>
+                                                @error('submenu_id')
+                                                    <div id="Errormsg">{{ $message }}</div>
+                                                @enderror
+
+                                                
+                                            </div>
+                                        </div>
                                  
                                        
 
@@ -176,4 +221,92 @@
 
         }
     </style>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var selectedMenuId = {!! json_encode($edit->menu_id ?? null) !!};
+        var selectedSubmenuId = {!! json_encode($edit->sub_menu_id ?? null) !!};
+       
+
+        var menuId = {!! json_encode($edit->menu_id ?? null) !!};
+        $('#menu_id').val(menuId).change();
+
+        // Use AJAX to fetch submenus based on the selected menu
+        fetchSubmenus(menuId, selectedSubmenuId);
+
+        // Use AJAX to fetch child menus based on the selected submenu
+        fetchChildMenus(selectedSubmenuId, selectedChildMenuId);
+    });
+
+    $('#menu_id').on('change', function() {
+        var menuId = $(this).val();
+
+        // Fetch submenus based on the selected menu
+        fetchSubmenus(menuId, null);
+    });
+
+    $('#submenu_id').on('change', function() {
+        var submenuId = $(this).val();
+
+        // Fetch child menus based on the selected submenu
+        fetchChildMenus(submenuId, null);
+    });
+
+    function fetchSubmenus(menuId, selectedSubmenuId) {
+        var submenuDropdown = $('#submenu_id');
+
+        $.ajax({
+            url: '/get-submenus/' + menuId,
+            type: 'GET',
+            success: function(data) {
+                submenuDropdown.empty();
+
+                if (data.length > 0) {
+                    $.each(data, function(index, submenu) {
+                        var option = $('<option value="' + submenu.id + '">' + submenu.title + '</option>');
+
+                        if (submenu.id == selectedSubmenuId) {
+                            option.prop('selected', true);
+                        }
+
+                        submenuDropdown.append(option);
+                    });
+                } else {
+                    submenuDropdown.append('<option value="' + selectedSubmenuId + '"></option>');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error(error);
+            }
+        });
+    }
+
+    function fetchChildMenus(submenuId, selectedChildMenuId) {
+        var childMenuDropdown = $('#child_menu_id');
+
+        $.ajax({
+            url: '/get-child-menus/' + submenuId,
+            type: 'GET',
+            success: function(data) {
+                childMenuDropdown.empty();
+
+                if (data.length > 0) {
+                    $.each(data, function(index, childMenu) {
+                        var option = $('<option value="' + childMenu.id + '">' + childMenu.title + '</option>');
+
+                        if (childMenu.id == selectedChildMenuId) {
+                            option.prop('selected', true);
+                        }
+
+                        childMenuDropdown.append(option);
+                    });
+                } else {
+                    childMenuDropdown.append('<option value="' + selectedChildMenuId + '"></option>');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error(error);
+            }
+        });
+    }
+</script>
     @endsection

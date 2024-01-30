@@ -35,15 +35,16 @@ class EmailCron extends Command
         foreach ($uniqueCodes as $code) {
             $organizationInfo = OrganisationMasterModel::where('code', $code)->first();
             $name = $organizationInfo->name;
-            $file = FileUploadModel::select('name', 'created_at', 'added_by','size','size_in_bytes')
-                ->where('org_code', $code)
-                ->where(function ($query) {
-                    $query->whereYear('created_at', now()->subMonth()->year)
-                    ->whereMonth('created_at', now()->subMonth()->month);
-                })
-                ->get();
-                // $organisation[$code]=$file;
-                // $organisation[$code]['org']= $name;
+           
+            $file = FileUploadModel::select('files.name', 'files.created_at', 'files.added_by','files.size','files.size_in_bytes','projects.name as project','files.purpose')
+            ->join('projects', 'files.project', '=', 'projects.id')
+            ->where('org_code', $code)
+            ->where(function ($query) {
+                $query->whereYear('files.created_at', now()->subMonth()->year)
+                ->whereMonth('files.created_at', now()->subMonth()->month);
+            })
+            ->get();
+             
                 $organisation[$code] = [
                     'name' => $name,
                     'files' => $file,

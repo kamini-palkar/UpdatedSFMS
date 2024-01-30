@@ -46,13 +46,23 @@ class weeklyEmailCron extends Command
             // ->get();
       
 
-            $file = FileUploadModel::select('name', 'created_at', 'added_by', 'size','size_in_bytes')
-                ->where('org_code', $code)
-                ->whereBetween('created_at', [
-                    now()->subWeek()->startOfWeek(Carbon::MONDAY)->toDateString(),
-                    now()->subWeek()->endOfWeek(Carbon::SUNDAY)->toDateString()
-                ])
-                ->get();
+            $file = FileUploadModel::select(
+                'files.size_in_bytes',
+                'files.name',
+                'files.size',
+                'files.added_by',
+                'files.created_at',
+                'files.project',
+                'files.purpose',
+                'projects.name as project'
+            )
+            ->join('projects', 'files.project', '=', 'projects.id')
+            ->where('org_code', $code)
+            ->whereBetween('files.created_at', [
+                now()->subWeek()->startOfWeek(Carbon::MONDAY)->toDateString(),
+                now()->subWeek()->endOfWeek(Carbon::SUNDAY)->toDateString()
+            ])
+            ->get();
                 $organisation[$code] = [
                     'name' => $name,
                     'files' => $file,

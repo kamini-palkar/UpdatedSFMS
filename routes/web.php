@@ -121,9 +121,8 @@ Route::group(['middleware' => ['auth', 'web']], function () {
  Route::get('menu-order/{id}', 'App\Http\Controllers\MenuController@orderData')->name('menu.orderData');
  Route::post('menu-sortable', 'App\Http\Controllers\MenuController@sortData');
 
-
+ Route::post('/store-selected-menu-item-id', 'App\Http\Controllers\HomeController@storeSelectedMenuItemId');
 // ACL 
-
 
 // roles module 
 Route::get('/addRoles', [App\Http\Controllers\RolesController::class, 'createRole'])->name('addRoles')->middleware('can:add-role');
@@ -160,6 +159,8 @@ Route::get('/edit-permission/{id}', [App\Http\Controllers\PermissionController::
 Route::post('/update-permission/{id}', [App\Http\Controllers\PermissionController::class, 'updatePermission'])->name('update-permission')->middleware('can:edit-permission');
 
 Route::get('/delete-permission/{id}', [App\Http\Controllers\PermissionController::class, 'destroyPermission'])->name('delete-permission')->middleware('can:delete-permission');
+Route::get('/get-submenus/{menu_id}', 'App\Http\Controllers\PermissionController@getSubmenus')->name('get.submenus');   
+Route::get('/get-child-menus/{submenuId}', 'App\Http\Controllers\PermissionController@getChildMenus')->name('get-child-menus');
 
 // roles and permission 
 

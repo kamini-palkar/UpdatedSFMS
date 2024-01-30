@@ -94,7 +94,7 @@
                                                     <span class="">Permission Name</span><span
                                                             style="color: red;">*</span>
                                                 </label>
-                                                <input type="text" name="name" id="organisation_name"
+                                                <input type="text" name="name" id="permission_name"
                                                     class="form-control form-control-solids"
                                                     value="" autocomplete="off"
                                                     style="border: 1px solid black; padding: 13px;"
@@ -126,7 +126,96 @@
                                                 @enderror
 
                                             </div>
+                                            
                                         </div>
+                                        <!-- <div class="col">
+                                            <div class="fv-row mb-2">
+                                                <label class="fs-6 fw-bold form-label mt-3">
+                                                    <span class="">Menu</span><span style="color: red;">*</span>
+                                                    <i class="fas fa-exclamation-circle ms-1 fs-7" data-bs-toggle="tooltip" title="" data-bs-original-title="Enter Menu."></i>
+
+                                                </label>
+
+                                                <select name="menu_id" id="menu_id"
+                                                    class="form-control form-control"
+                                                    style=" padding: 10px;">
+
+                                                    <option value="">Select menu</option>
+                                                    @foreach($Menus as $key=>$value)
+
+                                                    <option value="{{$value->id}}">{{$value->title}}</option>
+                                                    @endforeach
+                                                </select>
+                                                <span id="roleError" style="color:red;"></span>
+
+                                                @error('role_id')
+                                                <div id="Errormsg">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div> -->
+
+                                        <div class="col">
+                                        <div class="fv-row mb-2">  
+                                            <label class="fs-6 fw-bold form-label ">
+                                                <span class="">Menu</span>
+                                                <span style="color: red;">*</span>
+                                            </label>
+                                            <select name="menu_id" id="menu_id"
+                                                        class="form-control form-control-solids"
+                                                        style="border: 1px solid black; padding-top:0px; padding-bottom:0px;" >
+
+                                                        <option value="">select menu</option>
+                                                        @foreach($Menus as $key=>$value)
+                                                        <option value="{{$value->id}}" >{{$value->title}}</option>
+                                                        @endforeach
+                                            </select>
+                                            <span id="roleError"  style="color:red;"></span>
+                                            @error('role_id')
+                                            <div id="Errormsg">{{ $message }}</div>
+                                            @enderror
+                                            
+                                        </div>
+                                    </div>
+                                        <div class="col">
+                                            <div class="fv-row mb-2">
+                                                <label class="fs-6 fw-bold form-label ">
+                                                <span class="">SubMenu</span><span style="color: red;">*</span>
+                                                </label>
+                                                <select name="submenu_id" id="submenu_id"
+                                                            class="form-control form-control-solids"
+                                                            style="border: 1px solid black; padding-top:0px; padding-bottom:0px;" >
+
+                                                            <option value="">select SubMenu</option>
+                                                         
+                                                </select>
+                                                <span id="project"  style="color:red;"></span>
+                                                @error('submenu_id')
+                                                    <div id="Errormsg">{{ $message }}</div>
+                                                @enderror
+
+                                                
+                                            </div>
+                                        </div>
+                                        <!-- <div class="col">
+                                            <div class="fv-row mb-2">
+                                                
+
+                                                <label class="fs-6 fw-bold form-label ">
+                                                <span class="">ChildMenu</span><span style="color: red;">*</span>
+                                                </label>
+                                                <select name="child_menu_id" id="child_menu_id"
+                                                            class="form-control form-control-solids"
+                                                            style="border: 1px solid black; padding-top:0px; padding-bottom:0px;" >
+
+                                                            <option value="">select child menu</option>
+                                                          
+                                                </select>
+                                                <span id="childMenuError"  style="color:red;"></span>
+                                                @error('child_menu_id')
+                                                    <div id="Errormsg">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div> -->
                                  
                                        
 
@@ -179,19 +268,97 @@
         document.addEventListener('DOMContentLoaded', function () {
             var form = document.getElementById('form');
             form.addEventListener('submit', function (event) {
-                var nameInput = document.getElementById('organisation_name');
+                var nameInput = document.getElementById('permission_name');
                 var nameError = document.getElementById('nameError');
+                var menuId = document.getElementById('menu_id');
+            var submenuId = document.getElementById('submenu_id');
+            var roleError = document.getElementById('roleError');
+            var submenuError = document.getElementById('submenuError');
                 if (nameInput.value.trim() === '') {
                     nameError.textContent = 'Permission Name is required.';
                     event.preventDefault(); 
                 } else {
                     nameError.textContent = '';
                 }
+                if (menuId.value === '') {
+                roleError.textContent = 'Menu is required.';
+                event.preventDefault();
+            } else {
+                roleError.textContent = '';
+            }
             });
         });
 
         function removeBorderStyle(element) {
             element.style.border = '1px solid black';
         }
+    </script>
+
+<script>
+   $(document).ready(function() {
+    $('#menu_id').on('change', function() {
+        var menuId = $(this).val();
+        var submenuDropdown = $('#submenu_id');
+        // var childMenuDropdown = $('#child_menu_id');
+
+        $.ajax({
+            url: '/get-submenus/' + menuId,
+            type: 'GET',
+            success: function(data) {
+                console.log('Data received:', data);  // Add this line to log the data
+
+                submenuDropdown.empty();
+
+                if (data.length > 0) {
+                    $.each(data, function(index, submenu) {
+                        submenuDropdown.append('<option value="' + submenu.id +
+                            '">' + submenu.title + '</option>');
+                    });
+
+                    // $.each(data, function(index, submenu) {
+                    //     childMenuDropdown.append('<option value="' + submenu.id +
+                    //         '">' + submenu.title + '</option>');
+                    // });
+                } else {
+                    console.log('No submenus available');
+
+                    // Display the single submenu directly
+                    if (menuId !== '') {
+                        submenuDropdown.append('<option value="' + menuId +
+                            '">No submenus available</option>');
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+            }
+        });
+    });
+});
+
+    // $('#submenu_id').on('change', function() {
+    //     var submenuId = $(this).val();
+    //     var childMenuDropdown = $('#child_menu_id');
+
+    //     $.ajax({
+    //         url: '/get-child-menus/' + submenuId,
+    //         type: 'GET',
+    //         success: function(data) {
+    //             childMenuDropdown.empty();
+
+    //             if (data.length > 0) {
+    //                 $.each(data, function(index, childMenu) {
+    //                     childMenuDropdown.append('<option value="' + childMenu.id + '">' + childMenu.title + '</option>');
+    //                 });
+    //             } else {
+    //                 childMenuDropdown.append('<option value="' + submenuId + '">No child menus available</option>');
+    //             }
+    //         },
+    //         error: function(xhr, status, error) {
+    //             console.error(error);
+    //         }
+    //     });
+    // });
+
     </script>
     @endsection

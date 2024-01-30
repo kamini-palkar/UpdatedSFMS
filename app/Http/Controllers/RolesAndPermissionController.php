@@ -48,7 +48,8 @@ class RolesAndPermissionController extends Controller
         $module_name=$this->module_name;
         $breadcrumb = '<li class="breadcrumb-item active">' .$orgcode->code . '</li><li class="breadcrumb-item active">'.$module_name.'</li> <li class="breadcrumb-item active"><a href="/showroles_and_permission">ROLES HAS PERMISSION';
         $title="SFMS - $orgcode->code - $module_name";
+
         $Ads = RolesAndPermissionModel::where('deleted_at', null)->get();
-        return view('admin.RolesAndPermission.showroles_and_permission', ['Ads' => $Ads ,'breadcrumb'=>$breadcrumb,'title'=>$title]);
+        return view('admin.RolesAndPermission.showroles_and_permission', ['Ads' => $Ads ,'title'=>$title,'breadcrumb'=>$breadcrumb]);
     }
 }

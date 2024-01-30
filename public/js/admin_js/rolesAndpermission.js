@@ -26,7 +26,7 @@ $('#role').on('change', function() {
         var url = $(this).attr('data-url'); 
         
         let role_id = $(this).val();
-        alert(url);
+        // alert(url);
   
         $.ajax({
           url: url,

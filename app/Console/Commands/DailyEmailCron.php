@@ -38,12 +38,25 @@ class DailyEmailCron extends Command
             $organizationInfo = OrganisationMasterModel::where('code', $code)->first();
             $name = $organizationInfo->name;
             $todayDate = today();
-            $file = FileUploadModel::select('name', 'created_at', 'added_by','size','size_in_bytes')
+            // $file = FileUploadModel::select('name', 'created_at', 'added_by','size','size_in_bytes','project','purpose')
+            //     ->where('org_code', $code)
+            //     ->where(DB::raw('DATE(created_at)'), $todayDate)
+            //     ->get();
+                $file = FileUploadModel::select(
+                    'files.size_in_bytes',
+                    'files.name',
+                    'files.size',
+                    'files.added_by',
+                    'files.created_at',
+                    'files.project',
+                    'files.purpose',
+                    'projects.name as project'
+                )
+                ->join('projects', 'files.project', '=', 'projects.id')
                 ->where('org_code', $code)
-                ->where(DB::raw('DATE(created_at)'), $todayDate)
+                ->whereDate('files.created_at', $todayDate)
                 ->get();
-                // $organisation[$code]=$file;
-                // $organisation[$code]['org']= $name;
+           
                 $organisation[$code] = [
                     'name' => $name,
                     'files' => $file,

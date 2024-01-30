@@ -14,4 +14,9 @@ class FileUploadModel extends Model
     public $timestamps = true;
     protected $table ="files";
     protected $guarded = [];
+    
+    public function project()
+    {
+        return $this->belongsTo(ProjectModel::class, 'project');
+    }
 }

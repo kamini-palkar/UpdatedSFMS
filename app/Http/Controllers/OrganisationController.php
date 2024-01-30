@@ -24,8 +24,9 @@ class OrganisationController extends Controller
     } 
     public function showOrganisation(Request $request)
     {
-       
 
+
+   
 
         $orgid = auth()->user()->organisation_id;
         $orgcode= OrganisationMasterModel::where('id', $orgid)->first();
@@ -33,9 +34,9 @@ class OrganisationController extends Controller
         $module_name=$this->module_name;
         $breadcrumb = '<li class="breadcrumb-item active">' . $orgcode->code . '</li><li class="breadcrumb-item active">'.$module_name.' </li> <li class="breadcrumb-item active"><a href="/show-organisation">ORGANISATION</a></li>';
        
-        $title="SFMS-$orgcode->code -$module_name";
-        return view('datepicker');
-        // return view('admin.Organisation.showOrganisation',compact(['breadcrumb','title']));
+        $title="SFMS - $orgcode->code - $module_name";
+       
+        return view('admin.Organisation.showOrganisation',compact(['breadcrumb','title']));
     }
     
     public function createOrganisation(){
@@ -44,7 +45,7 @@ class OrganisationController extends Controller
         // dd($orgcode->code );
         $module_name=$this->module_name;
         $breadcrumb = '<li class="breadcrumb-item active">' . $orgcode->code . '</li><li class="breadcrumb-item active">'.$module_name.' </li> <li class="breadcrumb-item active"><a href="/show-organisation">ORGANISATION</a></li>';
-        $title="SFMS-$orgcode->code -$module_name";
+        $title="SFMS - $orgcode->code - $module_name";
     
         return view('admin.Organisation.createOrganisation',compact(['breadcrumb','title']));
 
