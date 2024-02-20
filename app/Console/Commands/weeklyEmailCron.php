@@ -56,7 +56,7 @@ class weeklyEmailCron extends Command
                 'files.purpose',
                 'projects.name as project'
             )
-            ->join('projects', 'files.project', '=', 'projects.id')
+            ->leftjoin('projects', 'files.project', '=', 'projects.id')
             ->where('org_code', $code)
             ->whereBetween('files.created_at', [
                 now()->subWeek()->startOfWeek(Carbon::MONDAY)->toDateString(),

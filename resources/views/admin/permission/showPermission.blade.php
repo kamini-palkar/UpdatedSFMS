@@ -7,7 +7,7 @@
 </div>
 </div>
 </div>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
+
 
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" />
 <main class="py-4">
@@ -85,6 +85,7 @@
                             <thead>
                                 <tr class="text-start text-gray-400 fw-bolder fs-7 text-uppercase gs-0">
                                     <th id="th">SR NO</th>
+                                    <th id="th">PERMISSION TITLE</th>
                                     <th id="th">PERMISSION NAME</th>
                                     <th id="th">ACTIONS</th>
                                 </tr>
@@ -106,8 +107,11 @@
             color: grey;
         }
         </style>
+        <script src="https://cdn.datatables.net/1.13.2/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
         <script>
         $(document).ready(function() {
+            console.log("ready!");
             var table = $('#tableYajra').DataTable({
                 processing: true,
                 serverSide: true,
@@ -115,6 +119,10 @@
                 columns: [{
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex'
+                    },
+                    {
+                        data: 'title',
+                        name: 'title'
                     },
                     {
                         data: 'name',
@@ -145,19 +153,8 @@
             }, 3000);
         });
         </script>
-        <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
-        <script src="https://cdn.datatables.net/1.13.2/js/jquery.dataTables.min.js"></script>
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
-        <script>
-        $(document).ready(function() {
-            console.log("ready!");
-        });
-        </script>
-
-
 
     </body>
-@endcan
+    @endcan
     </html>
     @endsection

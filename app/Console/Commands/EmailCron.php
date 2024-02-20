@@ -37,7 +37,7 @@ class EmailCron extends Command
             $name = $organizationInfo->name;
            
             $file = FileUploadModel::select('files.name', 'files.created_at', 'files.added_by','files.size','files.size_in_bytes','projects.name as project','files.purpose')
-            ->join('projects', 'files.project', '=', 'projects.id')
+            ->leftjoin('projects', 'files.project', '=', 'projects.id')
             ->where('org_code', $code)
             ->where(function ($query) {
                 $query->whereYear('files.created_at', now()->subMonth()->year)
@@ -50,7 +50,7 @@ class EmailCron extends Command
                     'files' => $file,
                 ];
         }
-    //    dd($organisation);
+ 
         $previousMonth = today()->subMonth();
         $Month = $previousMonth->format('F');
         $year = $previousMonth->year;

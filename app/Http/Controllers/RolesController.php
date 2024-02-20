@@ -22,7 +22,7 @@ class RolesController extends Controller
         // dd($orgcode->code );
         $module_name=$this->module_name;
         $breadcrumb = '<li class="breadcrumb-item active">' .$orgcode->code . ' </li><li class="breadcrumb-item active">'.$module_name.' </li> <li class="breadcrumb-item active"><a href="/showRoles">ROLES';
-        $title="SFMS-$orgcode->code -$module_name"; 
+        $title="SFMS - $orgcode->code - $module_name"; 
         return view('admin.roles.addRoles',compact(['breadcrumb','title']));
 
     }
@@ -72,7 +72,7 @@ class RolesController extends Controller
         // dd($orgcode->code );
         $module_name=$this->module_name;
         $breadcrumb = '<li class="breadcrumb-item active">' .$orgcode->code . '</li><li class="breadcrumb-item active">'.$module_name.'</li> <li class="breadcrumb-item active"><a href="/showRoles">ROLES';
-        $title="SFMS-$orgcode->code -$module_name";
+        $title="SFMS - $orgcode->code - $module_name";
         return view('admin.roles.showRoles',compact(['breadcrumb','title']));
     }
 
@@ -86,7 +86,7 @@ class RolesController extends Controller
         $orgcode= OrganisationMasterModel::where('id', $orgid)->first();
         $module_name=$this->module_name;
         $breadcrumb = '<li class="breadcrumb-item active">' .$orgcode->code . '</li><li class="breadcrumb-item active">'.$module_name.' </li> <li class="breadcrumb-item active"><a href="/showRoles">ROLES';
-        $title="SFMS-$orgcode->code -$module_name";
+        $title="SFMS - $orgcode->code - $module_name";
         
         return view('admin.roles.updateRoles', ['edit' => $edit ,'breadcrumb'=>$breadcrumb,'title'=>$title]);
     }

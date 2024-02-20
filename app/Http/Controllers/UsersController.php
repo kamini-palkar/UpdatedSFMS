@@ -27,7 +27,7 @@ class UsersController extends Controller
     {
         $data = OrganisationMasterModel::all();
         // sending roles whose deleted at = null
-        $roles = RolesAndPermissionModel::where('deleted_at', null)->get();
+        $roles = RolesModel::where('deleted_at', null)->get();
         $orgid = auth()->user()->organisation_id;
         $orgcode= OrganisationMasterModel::where('id', $orgid)->first();
     
@@ -79,7 +79,7 @@ class UsersController extends Controller
             $user_id = $storeUser->id;
             $model_type="App\Models\User";
             
-            $addInmodelHasRoles = new ModelHasRoles();
+            $addInmodelHasRoles = new RolesModel();
             $addInmodelHasRoles->role_id = $storeUserHasRole;
             $addInmodelHasRoles->model_type = $model_type;
             $addInmodelHasRoles->model_id = $user_id;
@@ -93,6 +93,7 @@ class UsersController extends Controller
 
     public function showUser(Request $request)
     {
+    
         $orgid = auth()->user()->organisation_id;
         $orgcode= OrganisationMasterModel::where('id', $orgid)->first();
         // dd($orgcode->code );
@@ -156,7 +157,7 @@ class UsersController extends Controller
             $editUser = User::find(decrypt($id));
             $data = OrganisationMasterModel::all();
 
-            $roles = RolesAndPermissionModel::where('deleted_at', null)->get();
+            $roles = RolesModel::where('deleted_at', null)->get();
 
             $orgid = auth()->user()->organisation_id;
             $orgcode= OrganisationMasterModel::where('id', $orgid)->first();

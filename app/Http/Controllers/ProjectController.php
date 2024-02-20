@@ -25,7 +25,7 @@ class ProjectController extends Controller
 
     public function showProject(Request $request)
     {
-       
+ 
         $orgid = auth()->user()->organisation_id;
         $orgcode= OrganisationMasterModel::where('id', $orgid)->first();
         // dd($orgcode->code );
@@ -50,6 +50,7 @@ class ProjectController extends Controller
 
     public function showDataTable(Request $request){
         $orgid = auth()->user()->organisation_id;
+    
         try {
             if ($request->ajax()) {
                 // $Project = ProjectModel::select('*')

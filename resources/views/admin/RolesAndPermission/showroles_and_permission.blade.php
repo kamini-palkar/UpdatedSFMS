@@ -2,7 +2,7 @@
 
 @section('containes')
 
-@can('role-has-permission')
+
 <div class="d-flex align-items-center ms-1 ms-lg-3" id="kt_header_user_menu_toggle">
 </div>
 </div>
@@ -11,7 +11,7 @@
 
 </div>
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" />
-
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <main class="py-4">
     <div class="content d-flex flex-column flex-column-fluid" id="kt_content">
 
@@ -106,8 +106,8 @@
                             
 
                             <div class="card-body pt-5">
-                                <form method="POST" id="form" action="{{ route('showroles_and_permissions') }}">
-                                    @csrf
+                                <!-- <form method="POST" id="form" action="">
+                                    @csrf -->
                                     <div class="row row-cols-2 row-cols-sm-3 rol-cols-md-1 row-cols-lg-2">
                                         <div class="col">
                                             <div class="fv-row mb-2">
@@ -134,17 +134,10 @@
                                     </div>
                                     <div style="float:right;">
 
-                                        <div class="d-flex justify-content-end">
-                                            <a href="/showroles_and_permission" class="btn btn-outline-danger"
-                                                style="margin-right:10px;">Cancel</a>
-                                            <button type="submit" id="submit" data-kt-contacts-type="submit"
-                                                class="btn btn-primary">
-                                                <span class="indicator-label">Save</span>
-                                            </button>
-                                        </div>
+                                     
 
                                     </div>
-                                </form>
+                                <!-- </form> -->
                             </div>
                         </div>
                     </div>
@@ -160,11 +153,6 @@
     </div>
 
     <style>
-    #organisation_code-error {
-        color: red;
-        padding-top: 15px;
-
-    }
 
     #Errormsg {
         color: red;
@@ -172,45 +160,13 @@
 
     }
     
-
-   
-
     </style>
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var alertElement = document.querySelector('.alert-success');
 
-        if (alertElement) {
-            setTimeout(function() {
-                alertElement.classList.add('hide-alert');
-            }, 1000);
-        }
-    });
-    </script>
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var form = document.getElementById('form');
-        form.addEventListener('submit', function(event) {
-            // Validate the dropdown selection
-            var roleDropdown = document.getElementById('role');
-            if (roleDropdown.value === '') {
-                $('#Error').text('Please select role to get permission according to Role.');
-                event.preventDefault();
-            } else {
-
-                $('#Error').text('');
-            }
-        });
-        $('#role').on('change', function() {
-
-            $('#Error').text('');
-        });
-    });
-    </script>
+ 
 
     <script src="{{ asset('js/admin_js/rolesAndpermission.js') }}"></script>
 
-@endcan
+
 
 
     @endsection

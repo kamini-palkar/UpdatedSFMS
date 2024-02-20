@@ -13,6 +13,9 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
+use App\Models\RolesAndPermissionModel;
+use App\Models\Permission;
+
 class PermissionController extends Controller
 {
     public $permission_model;
@@ -61,6 +64,7 @@ class PermissionController extends Controller
     {
         // dd($request);
         $request->validate([
+            'title' => 'required',
             'name' => 'required',
             'guard_name' => 'required',
             'menu_id' => 'required',
@@ -68,12 +72,20 @@ class PermissionController extends Controller
             'child_menu_id'=>'nullable'
         ]);
         $store = new PermissionModel;
+        if($request->get('submenu_id')==''){
+            $store->sub_menu_id = $request->get('menu_id');
+        }
+        else{
+            $store->sub_menu_id = $request->get('submenu_id');
+        }
+    
+        $store->title = $request->get('title');
         $store->name = $request->get('name');
         $store->guard_name = $request->get('guard_name');
         $store->created_by = auth()->id();
         $store->menu_id = $request->get('menu_id');
-        $store->sub_menu_id = $request->get('submenu_id');
-         $store->child_menu_id = $request->get('child_menu_id');
+       
+       
         $store->save();
         Session::flash('message', 'Permission added successfully.');
         return redirect('showPermission');
@@ -83,26 +95,29 @@ class PermissionController extends Controller
     // fetch all permissions 
     public function fetchPermission(Request $request)
     {
+
+
         // $permission_data = $this->permission_model->fetchPermission();
         // $role_data = Role::findById($request->role_id);
         // $rolepermission = $role_data->permissions->pluck('id')->toArray();
-        // $html = view('admin.RolesAndPermission.partialFiles.partial', ['permission_data' => $permission_data, 'rolepermission' => $rolepermission])->render();
-
-        // $response['html'] = $html;
-        // $response['status'] = true;
-        // return response(json_encode($response), 200);
-
-
-        $permission_data = $this->permission_model->fetchPermission();
-        $role_data = Role::findById($request->role_id);
-        $rolepermission = $role_data->permissions->pluck('id')->toArray();
        
-        // send menus in partial file
+        // // send menus in partial file
        
-        $Menus = Menu::with('submenus.permissions')->where('parent_id', 0)->get();
+        // $Menus = Menu::with('submenus.permissions')->where('parent_id', 0)->get();
 
-        //  dd($Menus);
-        $html = view('admin.RolesAndPermission.partialFiles.partial', ['permission_data' => $permission_data, 'rolepermission' => $rolepermission, 'Menus' => $Menus])->render();
+        $data = Role::find($request->role_id);   
+     
+        $permission = PermissionModel::orderBy('menu_id')->orderBy('sub_menu_id')->get();
+        
+        $roles_permissions = $data->permissions->pluck('id')->toArray();
+     
+        $menus = Menu::get()->pluck('title','id')->toArray();
+        //$menus = Menu::get(['title','id', 'parent_id'])->toArray();
+        // $menuData = DB::table('menus')->select('title', 'id', 'parent_id')->get();
+        // $menus = json_decode(json_encode($menuData), true);
+       
+    //   dd($menus); 
+        $html = view('admin.RolesAndPermission.partialFiles.partial', compact(['data','permission','roles_permissions','menus']))->render();
         $response['html'] = $html;
         $response['status'] = true;
         return response(json_encode($response), 200);
@@ -138,7 +153,7 @@ class PermissionController extends Controller
         // dd($orgcode->code );
         $module_name=$this->module_name;
         $breadcrumb = '<li class="breadcrumb-item active">' .$orgcode->code . '</li><li class="breadcrumb-item active">'.$module_name.'</li> <li class="breadcrumb-item active"><a href="/showPermission">PERMISSIONS';
-        $title="SFMS-$orgcode->code -$module_name"; 
+        $title="SFMS - $orgcode->code - $module_name"; 
         return view('admin.permission.showPermission',compact(['breadcrumb','title']));
        
     }
@@ -150,7 +165,7 @@ class PermissionController extends Controller
         // dd($orgcode->code );
         $module_name=$this->module_name;
         $breadcrumb = '<li class="breadcrumb-item active">' .$orgcode->code . '</li><li class="breadcrumb-item active">'.$module_name.'</li> <li class="breadcrumb-item active"><a href="/showPermission">PERMISSIONS';
-        $title="SFMS-$orgcode->code -$module_name";
+        $title="SFMS  - $orgcode->code - $module_name";
         $edit = PermissionModel::find(decrypt($id));
         $Menus = Menu::where('parent_id', 0)->get();
         return view('admin.permission.updatePermission', ['edit' => $edit,'breadcrumb'=>$breadcrumb,'title'=>$title,'Menus'=>$Menus]);
@@ -166,6 +181,7 @@ class PermissionController extends Controller
         // Session::flash('message', 'Permission updated successfully.');
         // return redirect('showPermission');
         $request->validate([
+            'title' => 'required',
             'name' => 'required',
             'guard_name' => 'required',
             'menu_id' => 'required',
@@ -173,18 +189,25 @@ class PermissionController extends Controller
           
         ]);
         DB::beginTransaction();
-        try {
+ 
+            
             $up = PermissionModel::find(decrypt($id));
+            if($request->get('submenu_id')==''){
+                $up->sub_menu_id = $request->get('menu_id');
+            }
+            else{
+                $up->sub_menu_id = $request->get('submenu_id');
+            }
+            $up->title = $request->get('title');
             $up->name = $request->get('name');
             $up->menu_id = $request->get('menu_id');
             $up->sub_menu_id = $request->get('submenu_id');
             // $up->child_menu_id = $request->get('child_menu_id');
             $up->updated_by = auth()->id();
+           
             $up->save();
-        } catch (Exception $exception) {
-            DB::rollback();
-            return back()->withError($exception->getMessage())->withInput();
-        }
+            // dd(2);
+      
         Session::flash('message', 'Permission updated successfully.');
         return redirect('showPermission');
     }

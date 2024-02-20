@@ -59,17 +59,17 @@ Route::group(['middleware' => ['auth', 'web']], function () {
     //     return view('admin.Organisation.showOrganisation');
     // })->middleware('can:show-organisation');
 
-    Route::get('/create-organisation', [App\Http\Controllers\OrganisationController::class, 'createOrganisation'])->name('create-organisation');
+    Route::get('/create-organisation', [App\Http\Controllers\OrganisationController::class, 'createOrganisation'])->name('create-organisation')->middleware('can:add-organisation');
 
-    Route::post('/store-organisation', [App\Http\Controllers\OrganisationController::class, 'storeOrganisation'])->name('store-organisation');
-    Route::post('/organisation-datatable', [App\Http\Controllers\OrganisationController::class, 'showDataTable'])->name('organisation-datatable')->middleware('can:show-org');
-    Route::get('/show-organisation', [App\Http\Controllers\OrganisationController::class, 'showOrganisation'])->name('show-organisation')->middleware('can:show-org');
+    Route::post('/store-organisation', [App\Http\Controllers\OrganisationController::class, 'storeOrganisation'])->name('store-organisation')->middleware('can:add-organisation');
+    Route::post('/organisation-datatable', [App\Http\Controllers\OrganisationController::class, 'showDataTable'])->name('organisation-datatable')->middleware('can:show-organisation');
+    Route::get('/show-organisation', [App\Http\Controllers\OrganisationController::class, 'showOrganisation'])->name('show-organisation');
 
-    Route::get('/delete-organisation/{id}', [App\Http\Controllers\OrganisationController::class, 'destroyOrganisation'])->name('delete-organisation');
+    Route::get('/delete-organisation/{id}', [App\Http\Controllers\OrganisationController::class, 'destroyOrganisation'])->name('delete-organisation')->middleware('can:delete-organisation');
 
-    Route::get('/edit-organisation/{id}', [App\Http\Controllers\OrganisationController::class, 'editOrganisation'])->name('edit-organisation');
+    Route::get('/edit-organisation/{id}', [App\Http\Controllers\OrganisationController::class, 'editOrganisation'])->name('edit-organisation')->middleware('can:edit-organisation');
 
-    Route::post('/update-organisation/{id}', [App\Http\Controllers\OrganisationController::class, 'updateOrganisation'])->name('update-organisation');
+    Route::post('/update-organisation/{id}', [App\Http\Controllers\OrganisationController::class, 'updateOrganisation'])->name('update-organisation')->middleware('can:edit-organisation');
 
     // file upload module
   
@@ -102,8 +102,8 @@ Route::group(['middleware' => ['auth', 'web']], function () {
   Route::get('/create-project', [App\Http\Controllers\ProjectController::class, 'createProject'])->name('create-project');
   Route::post('/store-project', [App\Http\Controllers\ProjectController::class, 'storeProject'])->name('store-project');
   Route::get('/delete-project/{id}', [App\Http\Controllers\ProjectController::class, 'destroyProject'])->name('delete-project')->middleware('can:delete-files');
-  Route::get('/edit-project/{id}', [App\Http\Controllers\ProjectController::class, 'editProject'])->name('edit-project')->middleware('can:edit-project');
-  Route::post('/update-project/{id}', [App\Http\Controllers\ProjectController::class, 'updateProject'])->name('update-project')->middleware('can:edit-project');
+  Route::get('/edit-project/{id}', [App\Http\Controllers\ProjectController::class, 'editProject'])->name('edit-project')->middleware('can:edit-organisation');
+  Route::post('/update-project/{id}', [App\Http\Controllers\ProjectController::class, 'updateProject'])->name('update-project')->middleware('can:edit-organisation');
   Route::get('/project-status/{id}', [App\Http\Controllers\ProjectController::class, 'updateProjectStatus'])->name('project-status');
 
 

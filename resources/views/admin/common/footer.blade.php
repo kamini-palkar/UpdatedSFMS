@@ -24,6 +24,10 @@ var hostUrl = "assets/";
 <script src="{{url('assets/js/custom/utilities/modals/new-target.js')}}"></script>
 <script src="{{url('assets/js/custom/utilities/modals/users-search.js')}}"></script>
 <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+
+  <!-- For JSTREE -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
 <script>
 $(document).ready(function() {
     var table = $('#prospect-master').DataTable({
@@ -32,6 +36,19 @@ $(document).ready(function() {
 		"paging": false,
     });
 
+    // $.ajax({
+	// 		type: 'get',
+	// 		url: '/get-permissions',
+	// 		success: function (response) {
+	// 			console.log(response);
+
+	// 		},
+	// 		error: function (error) {
+	// 			console.error( error);
+	// 		}
+	// 	});
+	
+
 });
 	setTimeout(function() {
             $("div.alert-success").slideUp(300, function() {
@@ -39,10 +56,12 @@ $(document).ready(function() {
             });
         }, 2000);
 
-	$('.menu-link').on('click', function (event) {
+	$('.diplsidebarsubmenu').on('click', function (event) {
+		// alert(1);
 		var $parent = $(this).closest('.menu-item');
 		var menuItemId = $(this).data('menu-item-id');
-
+		var url=$(this).data('url');
+        console.log(menuItemId);
 		$.ajax({
 			type: 'POST',
 			url: '/store-selected-menu-item-id',
@@ -51,7 +70,9 @@ $(document).ready(function() {
 				_token: '{{ csrf_token() }}'
 			},
 			success: function (response) {
-				console.log('Selected menu item ID stored successfully');
+				console.log(response);
+				      // Redirect to the desired URL
+					  window.location.href = url;
 
 			},
 			error: function (error) {

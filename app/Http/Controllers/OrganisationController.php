@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB ;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Session;
 use Carbon\Carbon;
-
+use Illuminate\Support\Facades\Gate;
 use Exception;
 use Illuminate\Support\Facades\Mail;
 
@@ -24,10 +24,7 @@ class OrganisationController extends Controller
     } 
     public function showOrganisation(Request $request)
     {
-
-
-   
-
+    //    dd($request->user()->can('delete-org'));
         $orgid = auth()->user()->organisation_id;
         $orgcode= OrganisationMasterModel::where('id', $orgid)->first();
         // dd($orgcode->code );
@@ -63,10 +60,12 @@ class OrganisationController extends Controller
                         $deleteUrl = route('delete-organisation', ['id'=>$encryptedId]);
                         $deleteBtn = '';
                         $editBtn = '';
+                        if (Gate::allows('delete-org')) {
                         $deleteBtn = '<a  href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$encryptedId.'" data-original-title="Delete"   style="cursor: pointer;font-weight:normal !important;" class="menu-link flex-stack px-3 DeleteOrganisation"><i class="fa fa-trash" style="color:red"></i></a>';
-
+                        }
+                        if (Gate::allows('edit-org')) {
                         $editBtn='<a href="' . $editUrl . '" title="Edit" class="menu-link flex-stack px-3" style="font-weight:normal !important;"><i class="fa fa-edit" id="ths" style="font-weight:normal !important;"></i></a>';
-                       
+                        }
                     
 
                      $actionBtn =  $editBtn .$deleteBtn ;
@@ -116,9 +115,9 @@ class OrganisationController extends Controller
     }
    
     
-    public function editOrganisation($id)
+    public function editOrganisation($id,Request $request )
     {
-
+      
 
         $orgid = auth()->user()->organisation_id;
         $orgcode= OrganisationMasterModel::where('id', $orgid)->first();

@@ -2,15 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\Menu;
+use App\Models\OrganisationMasterModel;
 use Illuminate\Http\Request;
-use Response;
-use App\Http\Requests;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\DataTables;
-
-
 
 class MenuController extends Controller
 {
@@ -18,9 +14,9 @@ class MenuController extends Controller
     {
         $this->middleware('auth');
         $this->module_name="Menu";
-    }        
+    }  
     
-	public function index(Request $request)
+    public function index(Request $request)
     {
 		$input = $request->all();
 		$parent_id=$input['parent_id'];        
@@ -36,7 +32,7 @@ class MenuController extends Controller
                     //$btn = '<a href="'. route("Menus.edit", $row->id) .'" class="edit btn btn-success btn-sm">Edit</a>';
                     $btn = '<a href="javascript:void(0);" class="edit-record btn btn-sm btn-success" id="'.$row->id.'" role="dialog" aria-labelledby="myModalLabel" 
                     data-id="'.$row->id.'" data-title="'.$row->title.'"  data-url="'.$row->url.'" data-icon="'.$row->icon.'">
-                    <i class="glyphicon glyphicon-edit"></i> Edit</a>';
+                     Edit</a>';
                     return $btn;
                 })
                 ->addColumn('action_del', function($row){
@@ -44,7 +40,7 @@ class MenuController extends Controller
                     <form action="'. route("Menus.destroy", $row->id) .'" method="POST">
                     <input type="hidden" name="_method" value="DELETE">
                     <input type="hidden" name="_token" value="'.csrf_token().'">
-                    <button class="btn btn-danger btn-sm" type="submit" onclick="return confirm(\'Are you sure?\')">Delete</button>
+                    <button class="btn btn-sm btn-danger " type="submit" onclick="return confirm(\'Are you sure?\')">Delete</button>
                     </form> 
                     ';
                     return $btn;
@@ -60,10 +56,11 @@ class MenuController extends Controller
                 return $datatable->make(true);              
         
     }
-
+    
     public function menuData()
     {
         $id = \Request::segment(2);
+		// dd($id);
 		$results = DB::select('select treecode from menus where id = :id', ['id' => $id]);
 		$records=count($results);
 		$breadcrumb=' <li class="breadcrumb-item"><a href="0">Root</a></li>';
@@ -81,16 +78,22 @@ class MenuController extends Controller
 		}
 		
         $module_name=$this->module_name;
-		return view('admin.menu.index',compact(['id','module_name','breadcrumb']));
+		$orgid = auth()->user()->organisation_id;
+        $orgcode= OrganisationMasterModel::where('id', $orgid)->first();
+		$title="SFMS - $orgcode->code - $module_name";
+		return view('admin.menu.index',compact(['id','module_name','breadcrumb','title']));
     }  
 
 	
-	public function orderData()
+	public function orderData($id)
     {
 		$parent_id = \Request::segment(2); 
+		// dd($parent_id);
 		$results = DB::select('select treecode from menus where id = :pid', ['pid' => $parent_id]);
 		$records=count($results);
+  
 		$breadcrumb='<li class="breadcrumb-item"><a href="../menu-list/0">Root</a></li>';
+	
 		if($records==0){
 			$id =0;
 		}else{
@@ -104,8 +107,11 @@ class MenuController extends Controller
 			}			
 		}	
         $module_name=$this->module_name;
+		$orgid = auth()->user()->organisation_id;
+        $orgcode= OrganisationMasterModel::where('id', $orgid)->first();
+		$title="SFMS - $orgcode->code - $module_name";
 		$cols = DB::select('select id,title,position from menus where parent_id = :id order by position', ['id' => $parent_id]);
-		return view('admin.menu.order',compact(['cols','module_name','parent_id','breadcrumb']));
+		return view('admin.menu.order',compact(['cols','module_name','parent_id','breadcrumb','title']));
 	}
     
     

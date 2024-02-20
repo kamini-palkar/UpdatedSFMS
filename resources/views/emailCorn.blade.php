@@ -76,23 +76,25 @@
             <table border="1" style="border-collapse: collapse; width: 80%;">
             <tr>
                 <th style="border: 1px solid #dddddd; text-align: center; padding: 8px; width: auto;">SR NO</th>
-                <th style="border: 1px solid #dddddd; text-align: center; padding: 8px; width: auto;">File Name</th>
-                <th style="border: 1px solid #dddddd; text-align: center; padding: 8px; width: auto;">Uploaded By</th>
-                <th style="border: 1px solid #dddddd; text-align: center; padding: 8px; width: auto;">Uploaded On</th>
-                <th style="border: 1px solid #dddddd; text-align: center; padding: 8px; width: auto;">Size</th>
                 <th style="border: 1px solid #dddddd; text-align: center; padding: 8px; width: auto;">Project</th>
+                <th style="border: 1px solid #dddddd; text-align: center; padding: 8px; width: auto;">File Name</th>   
                 <th style="border: 1px solid #dddddd; text-align: center; padding: 8px; width: auto;">Purpose</th>
+                <th style="border: 1px solid #dddddd; text-align: center; padding: 8px; width: auto;">Uploaded By</th>
+                <th style="border: 1px solid #dddddd; text-align: center; padding: 8px; width: auto;">Size</th>
+                <th style="border: 1px solid #dddddd; text-align: center; padding: 8px; width: auto;">Uploaded On</th>
+             
+           
             </tr>
 
             @foreach($filesdata as $key => $filesvalue)          
             <tr>
                 <td style="border: 1px solid #dddddd; text-align: center; padding: 8px;">{{ $key + 1 }}</td>
-                <td style="border: 1px solid #dddddd; text-align: center; padding: 8px;">{{ $filesvalue->name }}</td>
-                <td style="border: 1px solid #dddddd; text-align: center; padding: 8px;">{{ $filesvalue->added_by }}</td>
-                <td style="border: 1px solid #dddddd; text-align: center; padding: 8px;">{{ $filesvalue->created_at }}</td>
-                <td style="border: 1px solid #dddddd; text-align: center; padding: 8px;">{{ $filesvalue->size }}</td>
                 <td style="border: 1px solid #dddddd; text-align: center; padding: 8px;">{{ $filesvalue->project}}</td>
+                <td style="border: 1px solid #dddddd; text-align: center; padding: 8px;">{{ $filesvalue->name }}</td>
                 <td style="border: 1px solid #dddddd; text-align: center; padding: 8px;">{{ $filesvalue->purpose}}</td>
+                <td style="border: 1px solid #dddddd; text-align: center; padding: 8px;">{{ $filesvalue->added_by }}</td>
+                <td style="border: 1px solid #dddddd; text-align: center; padding: 8px;">{{ $filesvalue->size }}</td>
+                <td style="border: 1px solid #dddddd; text-align: center; padding: 8px;">{{ $filesvalue->created_at }}</td>
             </tr>
             @endforeach
             </table>

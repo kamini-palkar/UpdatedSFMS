@@ -1,13 +1,14 @@
 @extends('admin.common.main')
 @section('containes')
-@can('show-organisation')
+@can('show-org')
+
 <div class="d-flex align-items-center ms-1 ms-lg-3" id="kt_header_user_menu_toggle">
 </div>
 </div>
 </div>
 </div>
 </div>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
+
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" />
 <main class="py-4">
@@ -39,14 +40,16 @@
                         </div>
                        
                         <div class="d-flex align-items-center gap-2 gap-lg-3">
-
+                    
                             <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
-                              @can('add-organisation')
+                         
                                 <div>
+                                @can('add-org')
                                     <a href="{{route('create-organisation')}}" class="btn btn-primary"
                                         role="button">ADD ORGANISATION</a>
-                                </div>
                                 @endcan
+                                </div>
+                               
                                 <br>
                             </div>
 

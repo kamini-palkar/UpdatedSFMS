@@ -52,9 +52,12 @@ class FileUploadController extends Controller
         if ($fileCount > 0) {
 
             foreach ($files as $file) {
+                $selectedUsers = implode(', ', $request->input('user', []));
+
                 $add = new FileUploadModel;
                 $add->name = $file->getClientOriginalName();
-                $add->email = $email;
+                // $add->email = $email;
+                $add->file_to= $selectedUsers ;
                 $add->org_code = auth()->user()->organisation_code;
                 $uniqueId = $this->generateUniqueId($add->org_code);
                 $currentYear = now()->year;
@@ -100,37 +103,37 @@ class FileUploadController extends Controller
             }
             
             // $names = FileUploadModel::select('unique_id', 'id', 'name' , 'size' , 'added_by' , 'created_at','project')->where('record_unique_id', $RecordUniqueId)->get();
-            $names = FileUploadModel::select('files.unique_id', 'files.id', 'files.name', 'files.size', 'files.added_by', 
-            'files.created_at', 'files.project','files.purpose', 'projects.name as project')
-             ->join('projects', 'files.project', '=', 'projects.id')
-              ->where('files.record_unique_id', $RecordUniqueId)
-             ->get();
+            // $names = FileUploadModel::select('files.unique_id', 'files.id', 'files.name', 'files.size', 'files.added_by', 
+            // 'files.created_at', 'files.project','files.purpose', 'projects.name as project')
+            //  ->join('projects', 'files.project', '=', 'projects.id')
+            //   ->where('files.record_unique_id', $RecordUniqueId)
+            //  ->get();
 
-            $url = "http://files.seqr.info/home";
+            // $url = "http://files.seqr.info/home";
 
-            $regardsName = auth()->user()->name;
-            $id_for_mail = auth()->user()->organisation_id;
+            // $regardsName = auth()->user()->name;
+            // $id_for_mail = auth()->user()->organisation_id;
 
-            $organisation_name = DB::table('organisation_master')->where('id', $id_for_mail)->get();
-            $nameForMail = $organisation_name[0]->name;
+            // $organisation_name = DB::table('organisation_master')->where('id', $id_for_mail)->get();
+            // $nameForMail = $organisation_name[0]->name;
 
-            $email = $request->input('email');
+            // $email = $request->input('email');
 
-            $emails = explode(',', $email);
-            $validatedEmails = array_map('trim', $emails);
-            $validatedEmails = array_filter($validatedEmails, 'filter_var', FILTER_VALIDATE_EMAIL);
+            // $emails = explode(',', $email);
+            // $validatedEmails = array_map('trim', $emails);
+            // $validatedEmails = array_filter($validatedEmails, 'filter_var', FILTER_VALIDATE_EMAIL);
 
-            $data["title"] = "$nameForMail Sent You Files";
-            $data["body"] = " You have received $fileCount Files . Please log in to the  $url to view sent files.";
-            $data["regardsName"] = $regardsName;
-            $data["filesForMail"] = $files;
-            $data["names"] = $names;
+            // $data["title"] = "$nameForMail Sent You Files";
+            // $data["body"] = " You have received $fileCount Files . Please log in to the  $url to view sent files.";
+            // $data["regardsName"] = $regardsName;
+            // $data["filesForMail"] = $files;
+            // $data["names"] = $names;
 
-            Mail::send('demoMail', $data, function ($message) use ($data, $validatedEmails, $regardsName) {
-                $message->to($validatedEmails, $validatedEmails)
-                    ->subject($data["title"]);
+            // Mail::send('demoMail', $data, function ($message) use ($data, $validatedEmails, $regardsName) {
+            //     $message->to($validatedEmails, $validatedEmails)
+            //         ->subject($data["title"]);
 
-            });
+            // });
         } 
         return response()->json(['message' => 'Files uploaded successfully']);
     }
@@ -142,8 +145,9 @@ class FileUploadController extends Controller
         $breadcrumb = '<li class="breadcrumb-item active">' . $orgcode->code . '</li><li class="breadcrumb-item active">'.$module_name.' </li> <li class="breadcrumb-item active"><a href="/show-files">FILES</a></li>';
         $title="SFMS - $orgcode->code - $module_name";
         $project=  ProjectModel::where('organisation_id', $orgid) ->where('status', 1)->get();
+        $user=User::where('organisation_id', $orgid) ->where('status', 1)->get();
     
-        return view('admin.Files.uploadFile',compact(['breadcrumb','title','project']));
+        return view('admin.Files.uploadFile',compact(['breadcrumb','title','project','user']));
 
     }
 
@@ -210,18 +214,22 @@ class FileUploadController extends Controller
 
                 $query = FileUploadModel::select('files.*', 'projects.name as project')
                 ->leftjoin('projects', 'files.project', '=', 'projects.id')
-                ->when($addedBy, function ($query, $addedBy) {
-                    return $query->where('added_by', $addedBy);
-                })
-                ->when($project, function ($query, $project) {
-                    return $query->where('projects.name', $project);
-                })
-                ->when($documentType, function ($query, $documentType) {
-                    return $query->where('files.name', 'LIKE', "%$documentType%");
-                })
-                ->when($doc_date_range, function ($query, $doc_date_range) {
-                    return $query->whereBetween(DB::raw('DATE(files.created_at)'), [$doc_date_range[0], $doc_date_range[1]]);
-                })
+              
+                ->when($searchbtnClick === 'Yes', function ($query) use ($addedBy, $project, $documentType, $doc_date_range ) {
+                    $query->when($addedBy, function ($query, $addedBy) {
+                        return $query->where('added_by', $addedBy);
+                    })
+                    ->when($project, function ($query, $project) {
+                        return $query->where('projects.name', $project);
+                    })
+                    ->when($documentType, function ($query, $documentType) {
+                        return $query->where('files.name', 'LIKE', "%$documentType%");
+                    })
+                    ->when($doc_date_range, function ($query, $doc_date_range) {
+                        return $query->whereBetween(DB::raw('DATE(files.created_at)'), [$doc_date_range[0], $doc_date_range[1]]);
+                    });
+                  
+                })  
                 ->where('org_code', $org_code);
             
        
@@ -256,14 +264,20 @@ class FileUploadController extends Controller
     
                         // Check if the user has permission to download
                         if (\Gate::allows('download-file')) {
-                            $downloadBtn = '<a href="' . $downloadUrl . '" title="Download" style="cursor: pointer;font-weight:normal !important;" class="menu-link flex-stack px-3"><i class="fa fa-download" style="color:#0077b6"></i></a>';
+                            $userNamesArray = array_map('trim', explode(',', $row->file_to));
+                       
+                            if (in_array($loggedInUserName, $userNamesArray)) {
+                                $downloadBtn = '<a href="' . $downloadUrl . '" title="Download" style="cursor: pointer;font-weight:normal !important;" class="menu-link flex-stack px-3"><i class="fa fa-download" style="color:#0077b6"></i></a>';
 
-                            $fileName = $row->name;
-                            $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
-                            
-                            if ( strtolower($fileExtension) == 'pdf' || strtolower($fileExtension) == 'jpg'||strtolower($fileExtension) == 'png') {
-                                $viewBtn = '<a href="' . $viewUrl . '" title="View" style="cursor: pointer;font-weight:normal !important;" class="menu-link flex-stack px-3" target="_blank"><i class="fa fa-eye" style="color:#0077b6"></i></a>';
+                                $fileName = $row->name;
+                                $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
+                                
+                                if ( strtolower($fileExtension) == 'pdf' || strtolower($fileExtension) == 'jpg'||strtolower($fileExtension) == 'png') {
+                                    $viewBtn = '<a href="' . $viewUrl . '" title="View" style="cursor: pointer;font-weight:normal !important;" class="menu-link flex-stack px-3" target="_blank"><i class="fa fa-eye" style="color:#0077b6"></i></a>';
+                                }
+                              
                             }
+                         
                         }
     
 
@@ -294,7 +308,6 @@ class FileUploadController extends Controller
     
     public function destroyFile($id)
     {
-    //   dd($id);
         DB::beginTransaction();
         try {
             $user_id = auth()->id();
@@ -338,8 +351,6 @@ class FileUploadController extends Controller
         
              
         if (file_exists($filePath)) {
-
-             //insert user id if download 
              $user = FileUploadModel::find(decrypt($id));
              if ($user) {
                  $oldUser = $user->downloaded ? explode(',', $user->downloaded) : [];
@@ -392,7 +403,7 @@ class FileUploadController extends Controller
         
         $email = $request->input('email');
         $fileId = $request->input('fileId');
-    
+  
 
         $names = FileUploadModel::select('files.unique_id', 'files.id', 'files.name', 'files.size', 'files.added_by', 
         'files.created_at', 'files.project','files.purpose', 'projects.name as project')

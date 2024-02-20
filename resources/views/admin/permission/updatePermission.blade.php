@@ -89,6 +89,25 @@
                                 
                                     @csrf
                                     <div class="row row-cols-2 row-cols-sm-3 rol-cols-md-1 row-cols-lg-2">
+
+                                    <div class="col">
+                                            <div class="fv-row ">
+                                                <label class="fs-6 fw-bold form-label mt-3">
+                                                    <span class="">Permission Title</span><span
+                                                            style="color: red;">*</span>
+                                                </label>
+                                                <input type="text" name="title" id="permission_title"
+                                                    class="form-control form-control-solids"
+                                                    value="{{$edit->title}}" autocomplete="off"
+                                                    style="border: 1px solid black; padding: 13px;"
+                                                    oninput="removeBorderStyle(this)" >
+                                                    <span id="titleError" style="color:red;"></span>
+                                                @error('title')
+                                                <div id="Errormsg">{{ $message }}</div>
+                                                @enderror
+
+                                            </div>
+                                        </div>
                                         <div class="col">
                                             <div class="fv-row mb-2">
                                                 <label class="fs-6 fw-bold form-label mt-3">
@@ -112,7 +131,7 @@
                                         
                                         <div class="col">
                                             <div class="fv-row mb-2">
-                                                <label class="fs-6 fw-bold form-label mt-3">
+                                                <label class="fs-6 fw-bold form-label ">
                                                     <span class="">Guard Name</span><span
                                                             style="color: red;">*</span>
                                                 </label>
@@ -225,32 +244,19 @@
     document.addEventListener('DOMContentLoaded', function() {
         var selectedMenuId = {!! json_encode($edit->menu_id ?? null) !!};
         var selectedSubmenuId = {!! json_encode($edit->sub_menu_id ?? null) !!};
-       
-
         var menuId = {!! json_encode($edit->menu_id ?? null) !!};
         $('#menu_id').val(menuId).change();
-
         // Use AJAX to fetch submenus based on the selected menu
         fetchSubmenus(menuId, selectedSubmenuId);
-
-        // Use AJAX to fetch child menus based on the selected submenu
-        fetchChildMenus(selectedSubmenuId, selectedChildMenuId);
     });
 
     $('#menu_id').on('change', function() {
         var menuId = $(this).val();
-
         // Fetch submenus based on the selected menu
         fetchSubmenus(menuId, null);
     });
 
-    $('#submenu_id').on('change', function() {
-        var submenuId = $(this).val();
-
-        // Fetch child menus based on the selected submenu
-        fetchChildMenus(submenuId, null);
-    });
-
+   
     function fetchSubmenus(menuId, selectedSubmenuId) {
         var submenuDropdown = $('#submenu_id');
 
@@ -258,7 +264,7 @@
             url: '/get-submenus/' + menuId,
             type: 'GET',
             success: function(data) {
-                submenuDropdown.empty();
+               
 
                 if (data.length > 0) {
                     $.each(data, function(index, submenu) {
@@ -280,33 +286,6 @@
         });
     }
 
-    function fetchChildMenus(submenuId, selectedChildMenuId) {
-        var childMenuDropdown = $('#child_menu_id');
-
-        $.ajax({
-            url: '/get-child-menus/' + submenuId,
-            type: 'GET',
-            success: function(data) {
-                childMenuDropdown.empty();
-
-                if (data.length > 0) {
-                    $.each(data, function(index, childMenu) {
-                        var option = $('<option value="' + childMenu.id + '">' + childMenu.title + '</option>');
-
-                        if (childMenu.id == selectedChildMenuId) {
-                            option.prop('selected', true);
-                        }
-
-                        childMenuDropdown.append(option);
-                    });
-                } else {
-                    childMenuDropdown.append('<option value="' + selectedChildMenuId + '"></option>');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error(error);
-            }
-        });
-    }
+   
 </script>
     @endsection

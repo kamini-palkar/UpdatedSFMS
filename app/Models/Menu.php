@@ -12,7 +12,7 @@ class Menu extends Model
 
     protected $table = "menus";
 
-    public $fillable = ['title', 'url', 'icon', 'parent_id', 'treecode', 'position', 'created_at'];
+    public $fillable = ['title', 'url', 'icon', 'parent_id', 'treecode', 'position', 'created_at',];
 
     public function childs()
     {
@@ -52,6 +52,17 @@ class Menu extends Model
 {
     return $this->belongsTo(Menu::class, 'sub_menu_id');
 }
+
+
+  
+
+
+    
+
+    
+
+  
+
 
 
     protected $hidden = [

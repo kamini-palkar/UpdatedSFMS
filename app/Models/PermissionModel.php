@@ -25,4 +25,9 @@ class PermissionModel extends Model
     {
         return $this->belongsToMany(Role::class);
     }
+    public function menu()
+    {
+        return $this->belongsTo(Menu::class);
+    }
+    
 }

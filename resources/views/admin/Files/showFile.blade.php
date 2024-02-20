@@ -225,14 +225,15 @@
                                 <tr class="text-start text-gray-400 fw-bolder fs-7 text-uppercase gs-0">
                                     <th id="th">SR NO</th>
                                     <th id="th">UNIQUE ID</th>
-                                    <th id="th">FILE NAME</th>
-                                    <th id="th">BY</th>
-                                    <th id="th">ON</th>
-                                    <th id="th">SIZE</th>
-                                    <th id="th">SIZE IN BYTES</th>
-                                    <th id="th">ORGANISATION CODE</th>
                                     <th id="th">PROJECT</th>
+                                    <th id="th">FILE NAME</th>
                                     <th id="th">PURPOSE</th>
+                                    <th id="th">BY</th>
+                                    <th id="th">TO</th>
+                                    <th id="th">SIZE</th>
+                                    <th id="th">SIZE TO SORT</th>
+                                    <th id="th">ON</th>
+                                    <th id="th">ORG CODE</th>                                    
                                     <th id="th">ACTION</th>
                                 </tr>
                             </thead>
@@ -263,7 +264,6 @@
         }
         </style>
         
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
@@ -288,7 +288,7 @@
                         data.project=$('#project_name').val();
                         data.addedeBy=$('#addedBy').val();
                         data.documentType=$('#documentType').val();
-                    
+                        console.log(data);
                     }
                },
                 error: function(data){
@@ -306,27 +306,27 @@
                         name: 'unique_id'
                     },
                     {
+                        data: 'project',
+                        name: 'project',
+
+                    },
+                    {
                         data: 'name',
                         name: 'name'
+                    },
+                    {
+                        data: 'purpose',
+                        name: 'purpose',
+
                     },
                     {
                         data: 'added_by',
                         name: 'added_by'
                     },
                     {
-                        data: 'created_at',
-                        name: 'created_at',
-                        render: function(data, type, full, meta) {
-
-                            if (data) {
-                                var formattedDate = moment(data).format('YYYY-MM-DD h:mm A');
-                                return formattedDate;
-                            } else {
-                                return '';
-                            }
-                        }
+                        data: 'file_to',
+                        name: 'file_to'
                     },
-                  
                     {
                         data: 'size',
                         name: 'size',
@@ -348,23 +348,26 @@
                 
                     },
                     {
-                        data: 'org_code',
-                        name: 'org_code',
+                        data: 'created_at',
+                        name: 'created_at',
                         render: function(data, type, full, meta) {
-                            return '<span class="badge badge-success" style="margin-left:63px;padding:5px;">' +
-                                data + '</span>';
+
+                            if (data) {
+                                var formattedDate = moment(data).format('YYYY-MM-DD h:mm A');
+                                return formattedDate;
+                            } else {
+                                return '';
+                            }
                         }
                     },
                     {
-                        data: 'project',
-                        name: 'project',
-
-                    },
-                    {
-                        data: 'purpose',
-                        name: 'purpose',
-
-                    },
+                        data: 'org_code',
+                        name: 'org_code',
+                        render: function(data, type, full, meta) {
+                            return '<span class="badge badge-success" style="padding:5px;">' +
+                                data + '</span>';
+                        }
+                    },                
 
                     {
                         data: 'action',
@@ -403,6 +406,7 @@
                         }
                     }
                 },
+           
                 
             });
 
@@ -439,12 +443,7 @@
                 maxDate: moment(), 
                 showOnFocus: false,
            }); 
-        });
-    </script>
-       
-    <script>
-        $(document).ready(function() {
-            console.log("ready!");
+   
 
             $('body').on('click', '.DeleteFile', function () {
                 var id = $(this).data("id");
@@ -458,7 +457,6 @@
                         success: function (data) {
                             // table.draw();
                             console.log(data);
-                            // location.reload();
                             $('#tableYajra').DataTable().ajax.reload();
                             toastr.success('File deleted successfully');
                             
@@ -497,10 +495,7 @@
                 });
             });
 
-        });
-        </script>
-        <script>
-        $(document).ready(function() {
+      
             $('#close').on('click', function() {
                 $('#Error').text('');
             });
@@ -510,7 +505,7 @@
             $('#sendEmailBtn').on('click', function() {
                 var email = $('#mailIds').val();
                 var fileId = $('#emailModal').data('file-id');
-
+                // alert(fileId);
                 if (email === '') {
                     $('#Error').text('Email id is required.');
                     return false;
@@ -581,7 +576,7 @@
         </script>
 
     </body>
-    @endcan
+
     </html>
-    
+    @endcan
     @endsection
