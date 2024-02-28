@@ -52,14 +52,16 @@
                         </div> 
                         <div class="d-flex align-items-center gap-2 gap-lg-3">
 
-                            @can('add-project')
+                          
                                 <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
                                     <div>
+                                    @can('add-project')
                                         <a href="{{route('create-project')}}" class="btn btn-primary" role="button">ADD PROJECT</a>
+                                        @endcan
                                     </div>
                                     <br>
                                 </div>
-                            @endcan
+                         
 
                             <a style="display:none" href="../../demo1/dist/.html" class="btn btn-sm btn-primary"
                                 data-bs-toggle="modal" data-bs-target="#kt_modal_create_app">Create</a>

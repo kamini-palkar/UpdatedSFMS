@@ -7,6 +7,7 @@
 </div>
 </div>
 </div>
+
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" />
 <main class="py-4">
@@ -39,7 +40,7 @@
                                 <li class="breadcrumb-item text-dark">Customer Listing</li>
                             </ul>
                             <div class="row ">
-                                <div class="col-sm-12">
+                                <div class="">
                                     <ol class="breadcrumb ">
                                     <li class="breadcrumb-item"><a href="{{ route('home')}}">Home</a></li>
                                     <?php echo $breadcrumb ?? ''; ?>
@@ -50,15 +51,12 @@
                         <div class="d-flex align-items-center gap-2 gap-lg-3">
 
                             <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
-                         
-                              
+                                @can('add-user')
                                 <div>
-                              @can('add-user')
                                     <a href="{{route('create-user')}}" class="btn btn-primary"
                                         role="button">ADD USER</a>
-                                        @endcan
                                 </div>
-                              
+                                @endcan
                                 <br>
                             </div>
 
@@ -101,7 +99,7 @@
                                 <tr class="text-start text-gray-400 fw-bolder fs-7 text-uppercase gs-0">
                                     <th id="th">SR NO</th>
                                     <th id="th">NAME</th>
-
+                                    <th id="th">EMAIL</th>
                                     <th id="th">USERNAME</th>
                                     
                                     <th id="th">ORGANISATION CODE</th>
@@ -132,7 +130,6 @@
             var table = $('#tableYajra').DataTable({
                 processing: true,
                 serverSide: true,
-              
                 ajax: {
                 url: "{{ route('user-datatable') }}",
                 method: 'POST',
@@ -143,6 +140,10 @@
                 columns: [{
                         data: 'id',
                         name: 'id'
+                    },
+                    {
+                        data: 'email',
+                        name: 'email'
                     },
                     {
                         data: 'name',
@@ -215,17 +216,18 @@
             }, 3000);
         });
         </script>
-        
+        <script src="https://cdn.datatables.net/1.13.2/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
         <script>
         $(document).ready(function() {
             console.log("ready!");
             $('body').on('click', '.Deleteuser', function () {
         
                 var id = $(this).data("id");
-         
+                // alert(id);
                 var userConfirmed = confirm("Are you sure you want to delete this User!");
                 var url = "{{ url('delete-user') }}/" + id;
-         
+                //  alert (url);
                 if(userConfirmed){
                         $.ajax({
                             type: "get",
@@ -248,6 +250,27 @@
                 
             });
 
+
+
+            // $('body').on('click', '.toggle-status-icon', function () {
+            //     var userId = $(this).data('id');
+            //         // alert(userId);
+            //     $.ajax({
+            //         type: 'GET', 
+            //         url: '/user-status/' + userId, 
+                
+            //         success: function (data) {
+            //             console.log(data);
+            //             if (data.trim() === 'updated') {
+            //                 $('#tableYajra').DataTable().ajax.reload();
+            //                 toastr.success('User Status Updated Successfully');
+            //             }
+            //         },
+            //         error: function (error) {
+            //             // console.error('Error toggling user status:', error);
+            //         }
+            //     });
+            // });
         });
         </script>
      @can('Active/inactive')
@@ -255,7 +278,7 @@
             $(document).ready(function() {
                     $('body').on('click', '.toggle-status-icon', function () {
                     var userId = $(this).data('id');
-                       
+                        // alert(userId);
                     $.ajax({
                         type: 'GET', 
                         url: '/user-status/' + userId, 

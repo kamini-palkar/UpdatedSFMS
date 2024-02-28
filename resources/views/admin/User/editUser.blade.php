@@ -145,6 +145,22 @@
 
                                             </div>
                                         </div>
+                                        <div class="col">
+                                            <div class="fv-row mb-2">
+                                                <label class="fs-6 fw-bold form-label mt-3">
+                                                    <span class="">Email</span>
+                                                </label>
+                                                <input type="email" name="email" id="email"
+                                                    class="form-control form-control-solids" value="{{$editUser->email}}"
+                                                    autocomplete="off" style="border: 1px solid black; padding: 13px;"
+                                                    oninput="removeBorderStyle(this)">
+
+                                                @error('email')
+                                                <div id="Errormsg">{{ $message }}</div>
+                                                @enderror
+
+                                            </div>
+                                        </div>
 
                                         <div class="col">
                                             <div class="fv-row mb-2">
@@ -245,8 +261,6 @@
 
         }
     </style>
-
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
    
     <script>

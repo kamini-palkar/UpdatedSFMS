@@ -10,13 +10,13 @@
 </div>
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" />
 <!-- Include Select2 CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" integrity="sha512-Qy9pS/OmBOsz9mw6VEY5qk/ZL1WqI0z9D53U+oiRRGP5b2YZN/sxVjsTdh7v3Rv5q5Of9/78A2dWeGBww9kZLQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css"  />
 
 <!-- Include jQuery (required for Select2) -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha512-ZvpU/9UEIa7eLkUGh2BTEV6zKu70lV+1Zwo4b8lT/8jtZ1JtZ9z3luLbY+UXYYfH0DcPn3eMhylR6blt9Cv/1/w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" ></script>
 
 <!-- Include Select2 JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" integrity="sha512-WdeY9GrFd5zvBtGO2Jqsj5H1qMy1A4Vn15DZ+czMeTInyxgSTJTZYFvAytU1Yk7H1vRXTDZBRrM3CjG4sP8/wA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" ></script>
 
 
 <main class="py-4">
@@ -114,7 +114,7 @@
                                     <div class="row">
                                         <div class="col-8 col-sm-8 col-md-6 col-ls-6 mb-1">
                                         <label class="fs-6 fw-bold form-label ">
-                                                    <span class="">Email</span><span
+                                                    <span class="">Users</span><span
                                                             style="color: red;">*</span>
                                                 </label>
                                             <!-- <input type="text" name="email" class="form-control" style="border: 1px solid black;padding-top: 0px;"
@@ -122,10 +122,8 @@
                                                 <select name="user[]" id="user_id"
                                                         class="form-control form-control-solids"
                                                         style="border: 1px solid black; padding-top:0px; padding-bottom:0px;" required multiple>
-
-                                                        <option value="">select user</option>
                                                         @foreach($user as $key=>$value)
-                                                        <option value="{{$value->name}}" >{{$value->name}}</option>
+                                                        <option value="{{$value->id}}" >{{$value->name}}</option>
                                                         @endforeach
                                             </select>
                                         </div>
@@ -273,7 +271,6 @@
 
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
-
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 
@@ -299,7 +296,9 @@
     }
 
     $(document).ready(function() {
+
         $('#user_id').select2();
+
         $('#form').submit(function(e) {
             console.log('coming here');
             e.preventDefault();

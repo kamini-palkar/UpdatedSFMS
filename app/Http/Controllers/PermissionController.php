@@ -13,8 +13,8 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
-use App\Models\RolesAndPermissionModel;
-use App\Models\Permission;
+
+
 
 class PermissionController extends Controller
 {

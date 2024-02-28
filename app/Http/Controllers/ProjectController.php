@@ -68,9 +68,11 @@ class ProjectController extends Controller
                         $deleteBtn = '';
                         $editBtn = '';
                         if (Gate::allows('delete-project')) {
+                         
                             $deleteBtn = '<a  href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$encryptedId.'" data-original-title="Delete"   style="cursor: pointer;font-weight:normal !important;" class="menu-link flex-stack px-3 DeleteProject"><i class="fa fa-trash" style="color:red"></i></a>';
                         }
                         if (Gate::allows('edit-project')) {
+              
                             $editBtn='<a href="' . $editUrl . '" title="Edit" class="menu-link flex-stack px-3" style="font-weight:normal !important;"><i class="fa fa-edit" id="ths" style="font-weight:normal !important;"></i></a>';
                         }
                     

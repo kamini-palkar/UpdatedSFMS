@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class RolesAndPermissionModel extends Model
 {
     use HasFactory;
-    protected $table = "role_has_permissions";
+    protected $table = "roles";
 
-    protected $fillable = ['permission_id', 'role_id'];
+    protected $guarded = [];
  
 }
 

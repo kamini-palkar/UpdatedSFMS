@@ -91,7 +91,7 @@
                   
                     @endphp
                     
-                    @if ($menuItem->parent_id == 0 && in_array($menuItem->id, $userPermissions))
+                    @if ($menuItem->parent_id == 0 )
                     @php
                     $names = [];
                     foreach($menuItem->children as $subMenuItemC) {

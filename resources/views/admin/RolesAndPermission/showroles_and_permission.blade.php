@@ -106,8 +106,7 @@
                             
 
                             <div class="card-body pt-5">
-                                <!-- <form method="POST" id="form" action="">
-                                    @csrf -->
+                            
                                     <div class="row row-cols-2 row-cols-sm-3 rol-cols-md-1 row-cols-lg-2">
                                         <div class="col">
                                             <div class="fv-row mb-2">
@@ -137,7 +136,7 @@
                                      
 
                                     </div>
-                                <!-- </form> -->
+                        
                             </div>
                         </div>
                     </div>

@@ -8,6 +8,10 @@
 </head>
 <body>
 
+
+
+
+
 <div class="card card-primary">
 			<div class="card-body">
                     
@@ -35,30 +39,21 @@
                                             $currmenu = 0;
                                             $submenu = 0;
                                             $maingroupchanged = 0;
-                                            $i=0;
                                         ?>
-
-                                        
                                   
                                         @foreach($permission as $pm)
-                                        <?php
-                                          $i++;
-                                        ?>
+
                                             @if($currmenu == 0)
-                                        
-      
+
                                                 <li data-jstree='{"icon":"fas fa-th-large fa-fw theme"}'>{{$pm->menu->title}} 
                                                     <ul>
-
                                                 <?php
                                                     $currmenu = 0;
                                                     $submenu = 1;
-                                              
                                                 ?>
-                                                  
 
                                             @endif
-                                           
+
                                             @if($currmenu != $pm->menu_id)
                                                 <?php
                                                     $currmenu = $pm->menu_id;

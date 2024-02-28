@@ -23,8 +23,9 @@ class RolesAndPermissionController extends Controller
 
     public function storeRolesAndPermission(Request $request)
    {
-
+   
         $roleId = $request->roleid;
+
         $selectedpermissions = $request->selectedElmsIds; 
         DB::table('role_has_permissions')->where('role_id',$request->roleid)->delete();
         if(!empty($selectedpermissions)){
@@ -35,7 +36,6 @@ class RolesAndPermissionController extends Controller
                 }
                 $values[] = array( $value);
             }  
-            // dd($values);
         }
     
         // Clear cached permissions
@@ -46,7 +46,7 @@ class RolesAndPermissionController extends Controller
     
         // Detach existing permissions for the role
         $role->permissions()->detach();
-        // dd($role);
+    
         // Attach new permissions to the role
         foreach ($values as $permissionId) {
             $permission = Permission::findOrFail($permissionId);

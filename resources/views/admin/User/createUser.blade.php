@@ -142,6 +142,23 @@
 
                                             </div>
                                         </div>
+                                        <div class="col">
+                                            <div class="fv-row mb-2">
+                                                <label class="fs-6 fw-bold form-label mt-3">
+                                                    <span class="">Email</span><span
+                                                            style="color: red;">*</span>
+                                                </label>
+                                                <input type="email" name="email" id="email"
+                                                    class="form-control form-control-solids" value="{{old('email')}}"
+                                                    autocomplete="off" style="border: 1px solid black; padding: 13px;"
+                                                    oninput="removeBorderStyle(this)">
+                                                    <span id="emailError"  style="color:red;"></span>
+                                                @error('email')
+                                                <div id="Errormsg">{{ $message }}</div>
+                                                @enderror
+
+                                            </div>
+                                        </div>
 
                                         <div class="col">
                                             <div class="fv-row mb-2">
@@ -247,7 +264,7 @@
 
         }
     </style>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
+
     <script>
     document.addEventListener('DOMContentLoaded', function () {
         var form = document.getElementById('form');
@@ -257,6 +274,7 @@
         var usernameInput = document.getElementById('username');
         var passwordInput = document.getElementById('password');
         var roleInput = document.getElementById('role_id');
+        var emailInput = document.getElementById('email');
 
         var organisationError = document.getElementById('OrganisationError');
         var codeError = document.getElementById('OrganisationCodeError');
@@ -264,6 +282,7 @@
         var usernameError = document.getElementById('usernameError');
         var passwordError = document.getElementById('passwordError');
         var roleError = document.getElementById('roleError');
+        var emailError = document.getElementById('emailError');
 
         form.addEventListener('submit', function (event) {
             // Validation logic as before...
@@ -309,6 +328,12 @@
             } else {
                 roleError.textContent = '';
             }
+            if (emailInput.value.trim() === '') {
+                emailError.textContent = 'Email is required.';
+                event.preventDefault(); 
+            } else {
+                emailError.textContent = '';
+            }
         });
 
         // Add input event listeners to clear errors when the user types
@@ -334,6 +359,9 @@
 
         roleInput.addEventListener('change', function () {
             roleError.textContent = '';
+        });
+        emailInput.addEventListener('change', function () {
+            emailError.textContent = '';
         });
     });
 

@@ -16,6 +16,9 @@ use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Contracts\Encryption\DecryptException;
 class FileUploadController extends Controller
 {
     public function __construct(Request $request)
@@ -42,98 +45,116 @@ class FileUploadController extends Controller
 
     public function storeFiles(Request $request)
     {
-    //    dd($request);
+ 
         $RecordUniqueId = time() . '_' . mt_rand();
         $files = $request->file('name', []);
         $email = $request->input('email');
 
         $fileCount = count($files);
-
+        $userEmail = [];
         if ($fileCount > 0) {
 
             foreach ($files as $file) {
-                $selectedUsers = implode(', ', $request->input('user', []));
-
+         
+                $selectedUsers = implode(',', $request->input('user', []));
+            
                 $add = new FileUploadModel;
                 $add->name = $file->getClientOriginalName();
-                // $add->email = $email;
-                $add->file_to= $selectedUsers ;
+                $add->file_to = $selectedUsers;
                 $add->org_code = auth()->user()->organisation_code;
                 $uniqueId = $this->generateUniqueId($add->org_code);
+               
                 $currentYear = now()->year;
                 $currentMonth = now()->month;
-
+                
                 $publicPath = public_path("Organisation/{$add->org_code}/{$currentYear}/{$currentMonth}");
-
+                
                 if (!File::isDirectory($publicPath)) {
                     File::makeDirectory($publicPath, 0755, true);
                 }
-                 //size in bytes
-                $fileSize = $file->getSize();
-                $add->size_in_bytes= $fileSize ;
-
-              
-                if ($fileSize >= 1048576) { 
+                
+                $fileContent = file_get_contents($file->path());
+                
+       
+                if (in_array($file->getClientOriginalExtension(), ['jpg', 'jpeg', 'png', 'xlsx', 'doc',
+                'docx', 'pdf', 'xls', 'zip', 'cdr', 'ai', 'psd'])) {
+                    $encryptedContent = Crypt::encrypt($fileContent);
+                } else {
+                    $encryptedContent = $fileContent; 
+                }
+                
+                $fileSize = strlen($encryptedContent);
+                $add->size_in_bytes = $fileSize;
+                
+                if ($fileSize >= 1048576) {
                     $fileSizeFormatted = number_format($fileSize / 1048576, 2) . ' MB';
                 } else {
                     $fileSizeFormatted = number_format($fileSize / 1024, 2) . ' KB';
                 }
                 $add->size = $fileSizeFormatted;
                 
-                $file->move($publicPath, $file->getClientOriginalName());
+                $encryptedFilePath = $publicPath . '/' . $file->getClientOriginalName();
+                File::put($encryptedFilePath, $encryptedContent);
+                
                 $add->unique_id = $uniqueId;
                 $add->record_unique_id = $RecordUniqueId;
                 $add->created_by = auth()->id();
                 $add->updated_by = auth()->id();
                 $add->added_by = auth()->user()->name;
-
+                
                 $project = $request->input('project');
                 $purpose = $request->input('purpose');
-                $add->project=$project;
-                $add->purpose=$purpose;
+                $add->project = $project;
+                $add->purpose = $purpose;
+                
                 $organisation = OrganisationMasterModel::select('id')
                     ->where('code', $add->org_code)
                     ->first();
-
+                
                 if ($organisation) {
                     $add->organisation_id = $organisation->id;
                 }
                 
                 $add->save();
+                $userIds = $request->input('user', []);
+                $users = User::whereIn('id', $userIds)->get();
+                foreach ($users as $user) {
+                    $userEmail[] = $user->email;
+                }
             }
+            // dd($userEmail);
             
-            // $names = FileUploadModel::select('unique_id', 'id', 'name' , 'size' , 'added_by' , 'created_at','project')->where('record_unique_id', $RecordUniqueId)->get();
-            // $names = FileUploadModel::select('files.unique_id', 'files.id', 'files.name', 'files.size', 'files.added_by', 
-            // 'files.created_at', 'files.project','files.purpose', 'projects.name as project')
-            //  ->join('projects', 'files.project', '=', 'projects.id')
-            //   ->where('files.record_unique_id', $RecordUniqueId)
-            //  ->get();
+            $names = FileUploadModel::select('unique_id', 'id', 'name' , 'size' , 'added_by' , 'created_at','project')->where('record_unique_id', $RecordUniqueId)->get();
+            $names = FileUploadModel::select('files.unique_id', 'files.id', 'files.name', 'files.size', 'files.added_by', 
+            'files.created_at', 'files.project','files.purpose', 'projects.name as project')
+             ->join('projects', 'files.project', '=', 'projects.id')
+              ->where('files.record_unique_id', $RecordUniqueId)
+             ->get();
 
-            // $url = "http://files.seqr.info/home";
+            $url = "http://files.seqr.info/home";
 
-            // $regardsName = auth()->user()->name;
-            // $id_for_mail = auth()->user()->organisation_id;
+            $regardsName = auth()->user()->name;
+            $id_for_mail = auth()->user()->organisation_id;
 
-            // $organisation_name = DB::table('organisation_master')->where('id', $id_for_mail)->get();
-            // $nameForMail = $organisation_name[0]->name;
+            $organisation_name = DB::table('organisation_master')->where('id', $id_for_mail)->get();
+            $nameForMail = $organisation_name[0]->name;
 
-            // $email = $request->input('email');
+            $email = implode(',', $userEmail);
+            $emails = explode(',', $email);
+            $validatedEmails = array_map('trim', $emails);
+            $validatedEmails = array_filter($validatedEmails, 'filter_var', FILTER_VALIDATE_EMAIL);
 
-            // $emails = explode(',', $email);
-            // $validatedEmails = array_map('trim', $emails);
-            // $validatedEmails = array_filter($validatedEmails, 'filter_var', FILTER_VALIDATE_EMAIL);
+            $data["title"] = "$nameForMail Sent You Files";
+            $data["body"] = " You have received $fileCount Files . Please log in to the  $url to view sent files.";
+            $data["regardsName"] = $regardsName;
+            $data["filesForMail"] = $files;
+            $data["names"] = $names;
 
-            // $data["title"] = "$nameForMail Sent You Files";
-            // $data["body"] = " You have received $fileCount Files . Please log in to the  $url to view sent files.";
-            // $data["regardsName"] = $regardsName;
-            // $data["filesForMail"] = $files;
-            // $data["names"] = $names;
+            Mail::send('demoMail', $data, function ($message) use ($data, $validatedEmails, $regardsName) {
+                $message->to($validatedEmails, $validatedEmails)
+                    ->subject($data["title"]);
 
-            // Mail::send('demoMail', $data, function ($message) use ($data, $validatedEmails, $regardsName) {
-            //     $message->to($validatedEmails, $validatedEmails)
-            //         ->subject($data["title"]);
-
-            // });
+            });
         } 
         return response()->json(['message' => 'Files uploaded successfully']);
     }
@@ -157,7 +178,6 @@ class FileUploadController extends Controller
 
         $orgid = auth()->user()->organisation_id;
         $orgcode= OrganisationMasterModel::where('id', $orgid)->first();
-        // dd($orgcode->code );
         $module_name=$this->module_name;
         $breadcrumb = '<li class="breadcrumb-item active">' . $orgcode->code . '</li><li class="breadcrumb-item active">'.$module_name.' </li> <li class="breadcrumb-item active"><a href="/show-files">FILES</a></li>';
         $title="SFMS - $orgcode->code - $module_name";
@@ -168,9 +188,9 @@ class FileUploadController extends Controller
         ->distinct()
         ->where('organisation_id', $orgid)
         ->pluck('added_by');
-    
-        // dd($uploadedBy);
-        return view('admin.Files.showFile',compact(['breadcrumb','title','project','uploadedBy']));
+     
+         $user=User::where('organisation_id', $orgid) ->where('status', 1)->get();
+        return view('admin.Files.showFile',compact(['breadcrumb','title','project','uploadedBy','user']));
     }
 
 
@@ -180,18 +200,14 @@ class FileUploadController extends Controller
         $org_code = auth()->user()->organisation_code;
         $user_id = auth()->id();
         $Created_by_name = auth()->user()->name;
-       
-    
         try {
             if ($request->ajax()) {
-              
                 $searchbtnClick = $request->searchbtnClick;
                 $project=$request->project;
                 $addedBy=$request->addedeBy;
                 $documentType=$request->documentType;
                 $var_doc_date_from = $request->doc_date_from;
                 $var_doc_date_to = $request->doc_date_to;
-                
                 if ($var_doc_date_from) {
                     $date_from = str_replace('/', '-', $var_doc_date_from);
                     $doc_date_from = date('Y-m-d', strtotime($date_from));
@@ -210,10 +226,16 @@ class FileUploadController extends Controller
                 } else {
                     $doc_date_range = "";
                 }
-
-
-                $query = FileUploadModel::select('files.*', 'projects.name as project')
-                ->leftjoin('projects', 'files.project', '=', 'projects.id')
+                $query = FileUploadModel::select(
+                    'files.*',
+                    'projects.name as project',
+                    DB::raw('(
+                        SELECT GROUP_CONCAT(users.name) 
+                        FROM users 
+                        WHERE FIND_IN_SET(users.id, REPLACE(files.file_to, " ", "")) > 0
+                    ) as file_to')
+                )
+                ->leftJoin('projects', 'files.project', '=', 'projects.id')
               
                 ->when($searchbtnClick === 'Yes', function ($query) use ($addedBy, $project, $documentType, $doc_date_range ) {
                     $query->when($addedBy, function ($query, $addedBy) {
@@ -228,44 +250,28 @@ class FileUploadController extends Controller
                     ->when($doc_date_range, function ($query, $doc_date_range) {
                         return $query->whereBetween(DB::raw('DATE(files.created_at)'), [$doc_date_range[0], $doc_date_range[1]]);
                     });
-                  
                 })  
                 ->where('org_code', $org_code);
-            
-       
-            
-                    $loggedInUserName = auth()->user()->name; 
+
+                $loggedInUserName = auth()->user()->name; 
                     return DataTables::of($query)
                     ->addIndexColumn()
                     ->addColumn('action', function ($row)use ($loggedInUserName) {
-    
                         $deleteUrl = route('delete-file', ['id' => encrypt($row->id)]);
                         $downloadUrl = route('download.file', ['id' => encrypt($row->id)]);
                         $emailPopupUrl = route('show-files');
                         $viewUrl = route('view.file', ['id' => encrypt($row->id)]);
-    
                         $deleteBtn = '';
                         $downloadBtn = '';
                         $emailBtn = '';
                         $uploadBtn='';
                         $viewBtn='';
                         $infoBtn='';
-    
-                        // Check if the user has permission to delete
-                        if (\Gate::allows('delete-files')) {
-                            $deleteBtn = '<a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Delete"  style="cursor: pointer;font-weight:normal !important;" class=" DeleteFile menu-link flex-stack px-3"><i class="fa fa-trash" style="color:red"></i></a>';
-                           
+                        if (Gate::allows('delete-files')) {
+                            $deleteBtn = '<a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Delete"  style="cursor: pointer;font-weight:normal !important;" class=" DeleteFile menu-link flex-stack px-3"><i class="fa fa-trash" style="color:red"></i></a>'; 
                         }
-                        
-                        // Check if the user has permission to email
-                        if (\Gate::allows('send-email')) {
-                            $emailBtn = '<a href="' . $emailPopupUrl . '" title="Email" data-toggle="modal" data-target="#emailModal" data-file-id="' . $row->id . '" style="cursor: pointer;font-weight:normal !important;" class="menu-link flex-stack px-3"><i class="fa fa-envelope" style="color:#dd6e42"></i></a>';
-                        }
-    
-                        // Check if the user has permission to download
-                        if (\Gate::allows('download-file')) {
+                        if (Gate::allows('download-file')) {
                             $userNamesArray = array_map('trim', explode(',', $row->file_to));
-                       
                             if (in_array($loggedInUserName, $userNamesArray)) {
                                 $downloadBtn = '<a href="' . $downloadUrl . '" title="Download" style="cursor: pointer;font-weight:normal !important;" class="menu-link flex-stack px-3"><i class="fa fa-download" style="color:#0077b6"></i></a>';
 
@@ -275,23 +281,18 @@ class FileUploadController extends Controller
                                 if ( strtolower($fileExtension) == 'pdf' || strtolower($fileExtension) == 'jpg'||strtolower($fileExtension) == 'png') {
                                     $viewBtn = '<a href="' . $viewUrl . '" title="View" style="cursor: pointer;font-weight:normal !important;" class="menu-link flex-stack px-3" target="_blank"><i class="fa fa-eye" style="color:#0077b6"></i></a>';
                                 }
-                              
                             }
-                         
                         }
-    
-
-
                         $infoBtn =' <a href="javascript:void(0)" data-toggle="modal" data-id="'.$row->id.'" data-target="#detailModal" title="View Receiver List" class="viewReceiver menu-link flex-stack px-3"> <i class="fa fa-info-circle" style="color:blue"> </i></a> ';
-
                         if($row->added_by==$loggedInUserName){
                             $uploadBtn = '<a href="javascript:void(0)" title="Uploaded" style="cursor: pointer;font-weight:normal !important;" class="menu-link flex-stack px-3"><i class="fa fa-upload" style="color:#0077b6"></i></a>';
+                            if (Gate::allows('send-email')) {
+                                $emailBtn = '<a href="javascript:void(0)" title="Email" data-toggle="modal"class="viewUsers menu-link flex-stack px-3" data-target="#emailModal" data-file-id="' . $row->id . '" style="cursor: pointer;font-weight:normal !important;" ><i class="fa fa-envelope" style="color:#dd6e42"></i></a>';
+                            }
+
                         }
     
-                        // Concatenate the buttons
                         $actionBtn = $deleteBtn . $emailBtn .  $infoBtn .$downloadBtn . $viewBtn  . $uploadBtn ;
-    
-    
                         return $actionBtn;
                     })
                     ->rawColumns(['action'])
@@ -308,16 +309,12 @@ class FileUploadController extends Controller
     
     public function destroyFile($id)
     {
-        DB::beginTransaction();
         try {
             $user_id = auth()->id();
             $destroyFile = FileUploadModel::find($id);
             $destroyFile::where('id', $destroyFile->id)->update(['deleted_by' => $user_id]);
             $destroyFile->delete();
-            DB::commit();
         } catch (Exception $exception) {
-
-            DB::rollback();
             return back()->withError($exception->getMessage())->withInput();
         }
      
@@ -328,83 +325,180 @@ class FileUploadController extends Controller
 
     public function downloadFile($id)
     {
-        $file = FileUploadModel::findOrFail(decrypt($id));
+        $fileId = decrypt($id);
+        $file = FileUploadModel::findOrFail($fileId);
         $date = $file->created_at;
         $year = $date->format('Y');
         $month = $date->format('n');
-
-        // dd($year, $month);
+    
         $orgCode = auth()->user()->organisation_code;
-        $currentYear = now()->year;
-        $currentMonth = now()->month;
         $publicPath = public_path("Organisation/{$orgCode}/{$year}/{$month}");
     
         $filePath = $publicPath . '/' . $file->name;
-
-       //insert log
-       $user_id = auth()->id();
-       $file_id=decrypt($id);
-       $add = new FileLogModel;
-       $add->file_id=  $file_id;
-       $add->user_id= $user_id;      
-       $add->save();
-        
-             
+    
+        // insert log
+        $user_id = auth()->id();
+        $add = new FileLogModel;
+        $add->file_id = $fileId;
+        $add->user_id = $user_id;
+        $add->save();
+    
         if (file_exists($filePath)) {
-             $user = FileUploadModel::find(decrypt($id));
-             if ($user) {
-                 $oldUser = $user->downloaded ? explode(',', $user->downloaded) : [];
-                 $newUser = $user_id;            
-                 $combinedUser = implode(',', array_unique(array_merge($oldUser, [$newUser])));
-                 FileUploadModel::where('id', (decrypt($id)))
-                     ->update(['downloaded' => $combinedUser]);
-             } 
+            $user = FileUploadModel::find($fileId);
+            if ($user) {
+                $oldUser = $user->downloaded ? explode(',', $user->downloaded) : [];
+                $newUser = $user_id;
+                $combinedUser = implode(',', array_unique(array_merge($oldUser, [$newUser])));
+                FileUploadModel::where('id', $fileId)
+                    ->update(['downloaded' => $combinedUser]);
+            }
 
-            return response()->download($filePath, $file->name);
-           } 
-            else {
-           
+            $encryptedContent = file_get_contents($filePath);
+            $decryptedContent = Crypt::decrypt($encryptedContent);
+            $tempFilePath = tempnam(sys_get_temp_dir(), 'decrypted_file');
+            file_put_contents($tempFilePath, $decryptedContent);
+    
+            
+            return Response::download($tempFilePath, $file->name)->deleteFileAfterSend(true);
+        } else {
             return response()->json(['error' => 'File not found'], 404);
         }
     }
     public function viewFile($id)
     {
-        $file = FileUploadModel::findOrFail(decrypt($id));
-    
-        $orgCode = auth()->user()->organisation_code;
-        $date = $file->created_at;
-        $year = $date->format('Y');
-        $month = $date->format('n');
-        $publicPath = public_path("Organisation/$orgCode/$year/$month");
-        $filePath = $publicPath . '/' . $file->name;
-        if (file_exists($filePath)) {
-            return response()->file($filePath);
-        } else {
-           
-            return response()->json(['error' => 'File not found'], 404);
+        try {
+            $fileId = decrypt($id);
+            $file = FileUploadModel::findOrFail($fileId);
+            $orgCode = auth()->user()->organisation_code;
+            $date = $file->created_at;
+            $year = $date->format('Y');
+            $month = $date->format('n');
+            $publicPath = public_path("Organisation/$orgCode/$year/$month");
+            $filePath = $publicPath . '/' . $file->name;
+        
+            if (file_exists($filePath)) {
+                $encryptedContent = file_get_contents($filePath);
+                $decryptedContent = Crypt::decrypt($encryptedContent);
+                $extension = pathinfo($file->name, PATHINFO_EXTENSION);
+                $contentType = $this->getContentType($extension);
+                return response($decryptedContent)->header('Content-Type', $contentType);
+            } else {
+                return response()->json(['error' => 'File not found'], 404);
+            }
+        } catch (DecryptException $e) {
+            return response()->json(['error' => 'Decryption failed. Invalid key or corrupted data.']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An unexpected error occurred during file retrieval.']);
         }
     }
+    
+    private function getContentType($extension)
+    {
+        $contentType = '';
+    
+        switch ($extension) {
+            case 'pdf':
+                $contentType = 'application/pdf';
+                break;
+            case 'png':
+                $contentType = 'image/png';
+                break;
+            case 'jpg':
+            case 'jpeg':
+                $contentType = 'image/jpeg';
+                break;
+            // Add more cases for other file types if needed
+        }
+    
+        return $contentType;
+    }
+    
 
-     public function viewReceiver($id){
- 
-        $email = FileUploadModel::select('email')
+    public function viewUser($id){
+
+        $usernames = FileUploadModel::select('file_to')
         ->where('id', $id)
-        ->get();
-      
-        if (!$email) {
+        ->get()
+        ->pluck('file_to')
+        ->flatMap(function ($fileTo) {
+            return explode(', ', $fileTo);
+        })
+        ->unique()
+        ->first();
+        $usernamesArray = array_unique(array_map('intval', explode(',', $usernames)));
+        
+        $user = User::whereIn('id', $usernamesArray)
+            ->pluck('name')
+            ->toArray();
+        
+        if (!$user) {
+            return response()->json(['error' => 'Record not found'], 404);
+        }
+        
+        return response()->json($user);
+
+    }
+
+    public function viewReceiver($id){
+ 
+        $usernames = FileUploadModel::select('file_to')
+        ->where('id', $id)
+        ->get()
+        ->pluck('file_to')
+        ->flatMap(function ($fileTo) {
+            return explode(', ', $fileTo);
+        })
+        ->unique()
+        ->first();
+        
+        $usernamesArray = array_unique(array_map('intval', explode(',', $usernames)));
+        $emails = User::whereIn('id',  $usernamesArray)
+        ->pluck('email','name')
+        ->toArray();
+
+        if (!$emails) {
             return response()->json(['error' => 'Record not found'], 404);
         }
     
-        return response()->json($email);
+        return response()->json($emails);
      }
 
 
     public function sendEmail(Request $request){
+        $olduser = implode(',', $request->input('email', []));
+        $newusernames = $request->input('userlist', []);
         
-        $email = $request->input('email');
+        $newuser = User::whereIn('username', $newusernames)
+            ->pluck('id')
+            ->toArray();
+        
+        $olduserArray = explode(',', $olduser);
+        $newuserArray = $newuser; 
+        $combinedUsers = array_unique(array_merge($olduserArray, $newuserArray));
+        $combinedUsers = array_map('intval', $combinedUsers);      
+        $finalUserString = implode(',', $combinedUsers);
         $fileId = $request->input('fileId');
-  
+        $file= FileUploadModel::find( $fileId );
+    
+        if ($file) {
+            $file->update(['file_to' => $finalUserString]);
+    
+            $file->save();
 
+        } else {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+        $userIds = $request->input('email', []);
+        $users = User::whereIn('id', $userIds)->get();
+
+        $userEmail=[];
+        foreach ($users as $user) {
+            $userEmail[] = $user->email;
+        }
+     
+         $userEmailS = implode(', ',$userEmail );
+
+         
         $names = FileUploadModel::select('files.unique_id', 'files.id', 'files.name', 'files.size', 'files.added_by', 
         'files.created_at', 'files.project','files.purpose', 'projects.name as project')
          ->join('projects', 'files.project', '=', 'projects.id')
@@ -418,7 +512,7 @@ class FileUploadController extends Controller
         $organisation_name = DB::table('organisation_master')->where('id', $id_for_mail)->get();
         $nameForMail = $organisation_name[0]->name;
     
-        $emails = explode(',', $email);
+        $emails = explode(',',$userEmailS);
         $validatedEmails = array_map('trim', $emails);
         $validatedEmails = array_filter($validatedEmails, 'filter_var', FILTER_VALIDATE_EMAIL);
     
@@ -434,7 +528,7 @@ class FileUploadController extends Controller
                 ->subject($data["title"]);
         });
     
-        return response()->json(['message' => 'Nishant.Email sent successfully']);
+        return response()->json(['message' => 'Email sent successfully']);
     }
     
 

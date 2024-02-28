@@ -1,0 +1,53 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\OrganisationMasterModel;
+
+
+use Illuminate\Http\Request;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Exceptions\PermissionDoesNotExist;
+use Spatie\Permission\Exceptions\RoleDoesNotExist;
+
+class RolesAndPermissionController extends Controller
+{
+    public function __construct(Request $request)
+    {
+        $this->middleware('auth');
+        $this->module_name="ACL";
+    } 
+
+    public function storeRolesAndPermission(Request $request)
+   {
+    
+        $roleId = $request->role;
+        $permissionIds = $request->permission ?? [];
+        
+        $validPermissionIds = Permission::whereIn('id', $permissionIds)->pluck('id')->toArray();
+       
+        $role = Role::findOrFail($roleId);
+        $role->syncPermissions($validPermissionIds);
+       
+        return redirect('/showroles_and_permission');
+
+    
+}
+
+    public function showRP(Request $request)
+    {
+        $orgid = auth()->user()->organisation_id;
+        $orgcode= OrganisationMasterModel::where('id', $orgid)->first();
+
+        $module_name=$this->module_name;
+        $breadcrumb = '<li class="breadcrumb-item active">' .$orgcode->code . '</li><li class="breadcrumb-item active">'.$module_name.'</li> <li class="breadcrumb-item active"><a href="/showroles_and_permission">ROLES HAS PERMISSION';
+        $title="SFMS - $orgcode->code - $module_name";
+
+        $Ads = Role::where('deleted_at', null)->get();
+
+        return view('admin.RolesAndPermission.showroles_and_permission', ['Ads' => $Ads ,'title'=>$title,'breadcrumb'=>$breadcrumb]);
+    }
+}

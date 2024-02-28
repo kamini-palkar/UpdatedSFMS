@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\FileUploadModel;
 use App\Models\ModelHasRoles;
-use App\Models\RolesAndPermissionModel;
+
 use App\Models\RolesModel;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use App\Models\OrganisationMasterModel;
+use App\Models\RolesAndPermissionModel;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Exception;
@@ -48,7 +49,7 @@ class UsersController extends Controller
     }
     public function storeUser(Request $request)
     {
-       
+    //    dd($request);
        $validated = $request->validate([
             'organisation_id' => 'required',
             'name' => 'required',
@@ -60,6 +61,7 @@ class UsersController extends Controller
                 }),
             ],
             'password' => 'required',
+            'email' =>'required|email',
            
         ]);         
             $storeUser = new User();
@@ -69,17 +71,18 @@ class UsersController extends Controller
             $storeUser->username = $request->get('username');
             $storeUser->password = $request->get('password');
             $storeUser->role_id = $request->input('role_id');
+            $storeUser->email = $request->input('email');
             $storeUser->created_by = auth()->id();
-            $storeUser->updated_by = auth()->id();
+        
             $storeUser->created_at = now();
-            $storeUser->updated_at = now();
+           
             $storeUser->save();
 
             $storeUserHasRole = $request->input('role_id');
             $user_id = $storeUser->id;
             $model_type="App\Models\User";
             
-            $addInmodelHasRoles = new RolesModel();
+            $addInmodelHasRoles = new ModelHasRoles();
             $addInmodelHasRoles->role_id = $storeUserHasRole;
             $addInmodelHasRoles->model_type = $model_type;
             $addInmodelHasRoles->model_id = $user_id;
@@ -178,11 +181,13 @@ class UsersController extends Controller
         $validated = $request->validate([
             'name' => 'required',
             'password' => 'required',
+            'email' =>'required',
         ]);
-        DB::beginTransaction();
+    
         try {
             $updateUser = User::find(decrypt($id));
             $updateUser->name = $request->get('name');
+            $updateUser ->email = $request->get('email');
             $updateUser->password = $request->get('password');
             $updateUser->updated_by = auth()->id();
             $updateUser->updated_at = now();
@@ -193,10 +198,8 @@ class UsersController extends Controller
           
             ->update(['role_id' =>  $updateUser->role_id ]);
 
-            DB::commit();
+      
         } catch (Exception $exception) {
-
-            DB::rollback();
             return back()->withError($exception->getMessage())->withInput();
         }
         Session::flash('message', 'User Updated Successfully.!');
@@ -206,30 +209,22 @@ class UsersController extends Controller
 
     public function destroyUser($id)
     {
-        DB::beginTransaction();
+     
         try { 
-            // dd($id);
-
+         
             $checkFile = FileUploadModel::where('created_by',decrypt($id))->get();
-            // dd($checkFile);
             if ($checkFile->isEmpty()) {
                 $deleteUser = User::find(decrypt($id));
                 $deleteUser->delete();
                 DB::commit();
-                // echo "1";
-                return response("deleted");
-                // return response(" deleted")->json(['message'=>'User deleted successfully.']);
-               
+                return response("deleted"); 
             }
             else{
                 return response("not deleted");
-                // return response()->json(['message'=>'User can not be successfully.']);
-
             }
            
         } catch (Exception $exception) {
 
-            DB::rollback();
             return back()->withError($exception->getMessage())->withInput();
         }
         Session::flash('message', 'User Deleted Successfully.!');

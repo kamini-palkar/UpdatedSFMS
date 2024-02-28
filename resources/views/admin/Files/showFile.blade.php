@@ -14,7 +14,13 @@
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/ui-lightness/jquery-ui.css" />
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.10.0/dist/css/bootstrap-datepicker3.min.css" />
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" />
+<!--  Select2 CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css"  />
 
+<!-- jQuery for Select2-->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" ></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" ></script>
 
 <main class="py-4">
     <div class="content d-flex flex-column flex-column-fluid" id="kt_content">
@@ -73,14 +79,13 @@
 
         <!-- modal starts from here -->
         <div class="modal fade" id="emailModal" tabindex="-1" role="dialog" aria-labelledby="emailModalLabel"
-            aria-hidden="true" data-file-id="" data-backdrop="static" data-keyboard="false">
+            aria-hidden="true" data-backdrop="static" data-keyboard="false">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
 
                     <div class="modal-header">
-                        <h5 class="modal-title" id="emailModalLabel">Send Email</h5><small
-                            style="color:red; margin-top:6px;padding-left:8px;">[ Note : You can send multiple emails at
-                            a Time ]</small>
+                        <h5 class="modal-title" id="emailModalLabel">Add / Remove Users for access and email</h5>
+                       
                         <button type="button" class="close" id="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -89,8 +94,18 @@
                         <div class="container-fluid">
                             <div class="row">
                                 <div class="col-12">
-                                    <input type="text" id="mailIds" class="form-control"
-                                        placeholder="Please enter email id :">
+                                    <input type="hidden" id="fileid" value="" name="fileid">
+                                    <div class="user-container"></div>
+                                   
+                                           <select name="user[]" id="user_id"
+                                                        class="form-control form-control-solids"
+                                                        style="border: 1px solid black; padding-top:0px; padding-bottom:0px;" required multiple>
+
+                                                        <option value="">select user</option>
+                                                        @foreach($user as $key=>$value)
+                                                        <option value="{{$value->id}}" >{{$value->name}}</option>
+                                                        @endforeach
+                                            </select>
                                 </div>
                             </div>
                             <small id="Error" style="color:red;"></small>
@@ -271,7 +286,7 @@
         <script>
             
         $(document).ready(function() {
-            
+            $('#user_id').select2();
             var table = $('#tableYajra').DataTable({
                 processing: true,
                 serverSide: true,
@@ -410,12 +425,6 @@
                 
             });
 
-            $('#tableYajra tbody').on('click', 'a[data-target="#emailModal"]', function() {
-                var uniqueId = $(this).data('file-id');
-                $('#emailModal').data('file-id', uniqueId);
-                $('#emailModal').find('#mailIds').val('');
-            });
-
             setTimeout(function() {
                 $("div.alert-success").remove();
             }, 3000);
@@ -455,7 +464,6 @@
                         type: "get",
                         url: url,
                         success: function (data) {
-                            // table.draw();
                             console.log(data);
                             $('#tableYajra').DataTable().ajax.reload();
                             toastr.success('File deleted successfully');
@@ -468,30 +476,72 @@
                 }
                 
             });
+
+         
        
+           
+            $('body').on('click', '.viewUsers', function () {
+                $('.user-container').empty();
+                var id = $(this).data('file-id');
+                   
+              var url = "{{ url('view-user') }}/" + id;
+              $('.user-container').on('click', '.close-icon', function (event) {
+              
+                    event.preventDefault();
+                    $(this).closest('li').remove();
+              });
+
+              $.get(url, function (data) {
+                console.log(data);
+
+                if (Array.isArray(data)) {
+                    $("#fileid").val(id);
+                    $('.user-container').empty();
+                    var userListElement = $('<ul>');
+
+                    data.forEach(function (user) {
+                        var listItem = $('<li>').text(user.trim()+' ');
+                        var crossIcon = $('<i>').addClass('fas fa-times close-icon').css('color', 'red');
+                        listItem.append(crossIcon);
+                        userListElement.append(listItem);
+                    });
+                    $('.user-container').append(userListElement);
+                } else {
+                    console.error('Invalid data format - not an array');
+                }
+            }).fail(function (xhr, status, error) {
+                   console.error(xhr.responseText);
+                });
+
+            });
 
             $('body').on('click', '.viewReceiver', function () {
-              
-              var id = $(this).data('id');
-              var url = "{{ url('view-receiver') }}/" + id;
-               $.get(url, function (data) {
-                   $('#modelHeading').html("Email Receivers");
-                   $('#receiverEmail').empty();
-                   if (Array.isArray(data)) {
-                       data.forEach(function (item) {
-                           var emailsArray = item.email.split(',');
-                           var emailList = $('<ul>');
-                           emailsArray.forEach(function (email) {
-                               var listItem = $('<li>').text(email.trim());
-                               emailList.append(listItem);
-                           });
-                           $('#receiverEmail').append(emailList);
-                       });
-                   } else {
-                       $('#receiverEmail').text("Invalid data format");
-                   }
-               }).fail(function (xhr, status, error) {
-                   console.error(xhr.responseText);
+                $('#receiverEmail').empty();
+
+                var id = $(this).data('id');
+                var url = "{{ url('view-receiver') }}/" + id;
+
+                $.get(url, function (data) {
+                console.log(data); 
+
+                $('#modelHeading').html("Email Receivers");
+                $('#receiverEmail').empty();
+
+                if (typeof data === 'object') {
+                    var emailList = $('<ul>');
+                    Object.keys(data).forEach(function (username) {
+                        var email = data[username];
+                        var listItem = $('<li>').html('<strong>'+username + ' (' + email.trim()+')</strong>');
+                        emailList.append(listItem);
+                    });
+
+                    $('#receiverEmail').append(emailList);
+                } else {
+                    console.error("Invalid data format:", data);
+                    $('#receiverEmail').text("Invalid data format");
+                }
+            }).fail(function (xhr, status, error) {
+                    console.error(xhr.responseText);
                 });
             });
 
@@ -502,42 +552,30 @@
             $('#mailIds').on('input', function() {
                 $('#Error').text('');
             });
+
+
+            function getUsersFromContainer() {
+                var users = [];
+                $('.user-container li').each(function () {
+                    var userName = $(this).text().trim();
+                    users.push(userName);
+                });
+                return users;
+            }
+
+
             $('#sendEmailBtn').on('click', function() {
-                var email = $('#mailIds').val();
-                var fileId = $('#emailModal').data('file-id');
-                // alert(fileId);
-                if (email === '') {
-                    $('#Error').text('Email id is required.');
+                var email = $('#user_id').val();
+                var fileId = $("#fileid").val();  
+                var userList = getUsersFromContainer();
+                console.log(userList);
+                if (email =='') {
+                    $('#Error').text('Please select user.');
                     return false;
                 }
-
-                if (email != '') {
-
-                    emails = email.split(",");
-                    var valid = true;
-                    var regex =/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-                    var invalidEmails = [];
-
-                    for (var i = 0; i < emails.length; i++) {
-
-                        emails[i] = emails[i].trim();
-
-                        // Check email against our regex to determine if email is valid
-                        if (emails[i] == "" || !regex.test(emails[i])) {
-                            invalidEmails.push(emails[i]);
-                        }
-                    }
-                    if (invalidEmails != 0) {
-
-
-                        toastr.error('Invalid Email : ' + invalidEmails.join(', '));
-                        return false;
-                    }
-                }
+                else{
 
                 $('#Error').text('');
-
-
 
                 $.ajax({
                     url: "{{ route('send-email') }}",
@@ -545,21 +583,24 @@
                     data: {
                         _token: '{{ csrf_token() }}',
                         email: email,
-                        fileId: fileId
+                        fileId: fileId,
+                        userlist:userList
+
                     },
                     beforeSend: function() {
                         toastr.info('please wait email is sending....!', 'Processing');
                     },
-
-
                     success: function(response) {
                         $('#Error').text('');
-
-                        toastr.success('Email sent successfully!', 'Success');
+                        $('#tableYajra').DataTable().ajax.reload();
+                        toastr.success('Email send successfully!', 'Success');
+                        $('.user-container').empty();
+                     
 
                         if (response.success) {
-
+                            $('#tableYajra').DataTable().ajax.reload();
                             $('#emailModal').modal('hide');
+
                         }
                         console.log(response);
                     },
@@ -571,6 +612,7 @@
 
 
                 });
+            }
             });
         });
         </script>

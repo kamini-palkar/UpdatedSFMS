@@ -19,4 +19,8 @@ class FileUploadModel extends Model
     {
         return $this->belongsTo(ProjectModel::class, 'project');
     }
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'file_user', 'file_id', 'user_id');
+    }
 }
