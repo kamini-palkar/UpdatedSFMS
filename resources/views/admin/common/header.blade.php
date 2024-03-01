@@ -37,12 +37,30 @@
     <link href="{{url('assets/plugins/custom/datatables/datatables.bundle.css')}}" rel="stylesheet" type="text/css" />
     <link href="{{url('assets/plugins/global/plugins.bundle.css')}}" rel="stylesheet" type="text/css" />
     <link href="{{url('assets/css/style.bundle.css')}}" rel="stylesheet" type="text/css" />
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" />
+
+
+
+
+
+
 <style>
     #ths:hover {
             color: #00008B;
         }
+        .modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.5); /* Adjust transparency as needed */
+}
 </style>
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<!-- Bootstrap JavaScript and dependencies -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+
 
 
 </head>
@@ -4815,15 +4833,7 @@
                             <!--end::Notifications-->
                             <!--begin::Chat-->
                             <div class="app-navbar-item ms-1 ms-md-3">
-                                <!--begin::Menu wrapper-->
-                                <!--<div class="btn btn-icon btn-custom btn-icon-muted btn-active-light btn-active-color-primary w-30px h-30px w-md-40px h-md-40px position-relative" id="kt_drawer_chat_toggle">
-										<i class="ki-duotone ki-message-text-2 fs-2 fs-lg-1">
-											<span class="path1"></span>
-											<span class="path2"></span>
-											<span class="path3"></span>
-										</i>
-									</div>-->
-                                <!--end::Menu wrapper-->
+                            
                             </div>
                             <!--end::Chat-->
                             <!--begin::My apps links-->
@@ -5158,33 +5168,29 @@
                                             </div>
                                             <!--end::Username-->
                                         </div>
+         
                                     </div>
-                                    <!--end::Menu item-->
-                                    <!--begin::Menu separator-->
-                                    <div class="separator my-2"></div>
-                                    <!--end::Menu separator-->
-                                    <!--begin::Menu item-->
-                                    <!-- <div class="menu-item px-5">
-                                        <a href="../../demo1/dist/account/overview.html"
-                                            class="menu-link px-5">Profile</a>
-                                    </div> -->
-                                    <!--end::Menu item-->
-                                    <!--begin::Menu item-->
-                                    <!-- <div class="menu-item px-5">
-                                        <a href="../../demo1/dist/apps/projects/list.html" class="menu-link px-5">
-                                            <span class="menu-text">ACL</span>
+                                 
+                                    
 
-                                        </a>
-                                    </div> -->
-                                    <!--end::Menu item-->
-                                    <!--begin::Menu item-->
+
+
+
+ 
+
+                                 
+                                    <div class="separator my-2"></div>                                 
+
                                     <div class="menu-item px-5" data-kt-menu-trigger="{default: 'click', lg: 'hover'}"
                                         data-kt-menu-placement="left-start" data-kt-menu-offset="-15px, 0">
-
-
+                                        
+                                        <a  title="Add Company Branch" style="cursor: pointer; font-weight:normal !important;" class="flex-stack px-2" >
+                                                <i class="bi bi-gear-fill" data-toggle="modal"   data-target="#changePasswordModal"> Change Password</i> </a>
+                                     
+                                
                                     </div>
 
-                                    <div class="separator my-2"></div>
+                                    <!-- <div class="separator my-2"></div> -->
 
                                     <div class="menu-item px-5 my-2">
 
@@ -5225,3 +5231,39 @@
                 </div>
                 <!--end::Header container-->
             </div>
+
+
+
+
+
+
+
+
+
+<div class="modal fade" id="changePasswordModal" aria-hidden="true">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="modelHeading">Change Password</h4>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" id="closebtn"></button>
+
+                    </div>
+                    <div class="modal-body">
+                        <form id="passwordchangeform">
+                            @csrf
+                        
+                            <div class="mb-3">
+                                <label for="newPassword" class="form-label">New Password</label>
+                                <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+                            </div>
+                        
+                            <div class="mb-3">
+                                <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="changepassword">Change Password</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>

@@ -52,6 +52,7 @@ Route::group(['middleware' => ['auth', 'web']], function () {
     Route::get('/delete-user/{id}', [App\Http\Controllers\UsersController::class, 'destroyUser'])->name('delete-user')->middleware('can:delete-user');
 
     Route::get('/user-status/{id}', [App\Http\Controllers\UsersController::class, 'updateUserStatus'])->name('user-status');
+    Route::post('/change-password', [App\Http\Controllers\UsersController::class, 'changepassword'])->name('change-password');
 
     // organisation module
 

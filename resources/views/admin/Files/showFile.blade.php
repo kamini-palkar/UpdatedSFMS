@@ -12,7 +12,6 @@
 </div>
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/ui-lightness/jquery-ui.css" />
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.10.0/dist/css/bootstrap-datepicker3.min.css" />
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" />
 <!--  Select2 CSS -->
@@ -599,7 +598,10 @@
 
                         if (response.success) {
                             $('#tableYajra').DataTable().ajax.reload();
-                            $('#emailModal').modal('hide');
+                            $('#changePasswordModal').modal('hide');
+                    // Manually remove modal classes
+                    $('body').removeClass('modal-open');
+                    $('.modal-backdrop').remove();
 
                         }
                         console.log(response);

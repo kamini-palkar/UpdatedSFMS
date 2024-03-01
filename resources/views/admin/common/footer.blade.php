@@ -28,6 +28,9 @@ var hostUrl = "assets/";
   <!-- For JSTREE -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
 $(document).ready(function() {
     var table = $('#prospect-master').DataTable({
@@ -81,6 +84,44 @@ $(document).ready(function() {
 		});
 	});
 
+	$('#changepassword').on('click', function (event) {
+		event.preventDefault();
+		var newPassword=$('#newPassword').val();
+		var confirmPassword=$('#confirmPassword').val();
+	
+		if(newPassword==confirmPassword){
+			$.ajax({
+			type: 'POST',
+			url: '/change-password',
+			data: {
+				newPassword: newPassword,
+				confirmPassword:confirmPassword,
+				_token: '{{ csrf_token() }}'
+			},
+			success: function (response) {
+				console.log(response);
+				if(response=="changed"){
+					toastr.success('Password created successfully!', 'Success');
+					// $('#changePasswordModal').modal('toggle');
+		$('#changePasswordModal').modal('hide');
+
+				}
+				else{
+					toastr.error('Error sending email', 'Error');
+				}
+			},
+			error: function (error) {
+				console.error('Error in password change', error);
+				toastr.error('Error sending email', 'Error');
+			}
+		});
+			
+		}
+		else{
+			alert("Please enter same password and confirm password");
+		}
+
+	});
 
 </script>
 

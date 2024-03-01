@@ -7,7 +7,6 @@
 </div>
 </div>
 </div>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
 
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" />
 <main class="py-4">
@@ -104,6 +103,8 @@
 
         </div>
         @can('view-own-org-data')
+
+       
         <div class="row g-5 g-xl-10 mb-xl-10 ml-3 mr-3">
             @foreach ($data as $orgdetails)
                                         

@@ -2,7 +2,7 @@
 
 @section('containes')
 
-
+@can('role-has-permission')
 <div class="d-flex align-items-center ms-1 ms-lg-3" id="kt_header_user_menu_toggle">
 </div>
 </div>
@@ -166,6 +166,6 @@
     <script src="{{ asset('js/admin_js/rolesAndpermission.js') }}"></script>
 
 
-
+    @endcan
 
     @endsection

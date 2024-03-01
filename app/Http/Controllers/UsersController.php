@@ -88,6 +88,13 @@ class UsersController extends Controller
             $addInmodelHasRoles->model_id = $user_id;
             
             $addInmodelHasRoles->save(); 
+
+
+            Mail::send('demoMail', $data, function ($message) use ($data, $validatedEmails, $regardsName) {
+                $message->to($validatedEmails, $validatedEmails)
+                    ->subject($data["title"]);
+
+            });
          
         Session::flash('message', 'User Added Successfully.!');
         return redirect('show-user');
@@ -111,8 +118,6 @@ class UsersController extends Controller
    {
     try {
         if ($request->ajax()) {
-        
-
             $showGst = User::select('users.*', 'roles.name as role_name')
                 ->leftJoin('roles', 'users.role_id', '=', 'roles.id')->get();
 
@@ -127,12 +132,10 @@ class UsersController extends Controller
                     $editBtn = '';
                     $deleteBtn = '';
 
-                    // Check if the user has permission to edit
                     if (Gate::allows('edit-user')) {
                         $editBtn = '<a href="' . $editUrl . '" title="Edit" class="menu-link flex-stack px-3" style="font-weight:normal !important;"><i class="fa fa-edit" id="ths" style="font-weight:normal !important;"></i></a>';
                     }
 
-                    // Check if the user has permission to delete
                     if (Gate::allows('delete-user')) {
                         $deleteBtn = '<a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$encryptedId.'" data-original-title="Delete" style="cursor: pointer;font-weight:normal !important;" class="menu-link flex-stack px-3 Deleteuser"><i class="fa fa-trash" style="color:red"></i></a>';
                     }
@@ -180,7 +183,7 @@ class UsersController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required',
-            'password' => 'required',
+            // 'password' => 'required',
             'email' =>'required',
         ]);
     
@@ -188,14 +191,12 @@ class UsersController extends Controller
             $updateUser = User::find(decrypt($id));
             $updateUser->name = $request->get('name');
             $updateUser ->email = $request->get('email');
-            $updateUser->password = $request->get('password');
+            // $updateUser->password = $request->get('password');
             $updateUser->updated_by = auth()->id();
             $updateUser->updated_at = now();
             $updateUser->role_id = $request->input('role_id');
             $updateUser->save();
-
             ModelHasRoles::where('model_id',  $updateUser->id)
-          
             ->update(['role_id' =>  $updateUser->role_id ]);
 
       
@@ -205,6 +206,20 @@ class UsersController extends Controller
         Session::flash('message', 'User Updated Successfully.!');
         return redirect('show-user');
 
+    }
+    public function changepassword(Request $request){
+
+        $validated = $request->validate([
+            'newPassword' => 'required',
+            'confirmPassword' =>'required|same:newPassword',
+        ]);
+      
+        $userid= auth()->id();
+        $updateUser = User::find($userid);
+        $updateUser->password = $request->get('newPassword');
+        $updateUser->updated_at = now();
+        $updateUser->save();
+        return response("changed"); 
     }
 
     public function destroyUser($id)
@@ -216,7 +231,7 @@ class UsersController extends Controller
             if ($checkFile->isEmpty()) {
                 $deleteUser = User::find(decrypt($id));
                 $deleteUser->delete();
-                DB::commit();
+
                 return response("deleted"); 
             }
             else{

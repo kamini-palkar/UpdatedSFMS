@@ -108,10 +108,42 @@
                                 <button type="submit" id="submitBtn" class="btn btn-primary">
                                     {{ __('Login') }}
                                 </button>
+                                <a  title="Add Company Branch" style="cursor: pointer; font-weight:normal !important;" class="flex-stack px-2" >
+                                                <i class="bi bi-gear-fill" data-toggle="modal"   data-target="#changePasswordModal">forgot password</i> </a>
                             </div>
+                       
                         </div>
+                       
 
                     </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="changePasswordModal" aria-hidden="true">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="modelHeading">Change Password</h4>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" id="closebtn"></button>
+
+                    </div>
+                    <div class="modal-body">
+                        <form id="passwordchangeform">
+                            @csrf
+                        
+                            <div class="mb-3">
+                                <label for="newPassword" class="form-label">New Password</label>
+                                <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+                            </div>
+                        
+                            <div class="mb-3">
+                                <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="changepassword">Change Password</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

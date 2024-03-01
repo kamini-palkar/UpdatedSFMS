@@ -179,7 +179,7 @@
 
                                             </div>
                                         </div>
-                                        <div class="col">
+                                        <!-- <div class="col">
                                             <div class="fv-row mb-2">
                                                 <label class="fs-6 fw-bold form-label mt-3">
                                                     <span class="">PASSWORD</span>
@@ -194,7 +194,7 @@
                                                 @enderror
                                             </div>
                                            
-                                        </div>
+                                        </div> -->
                                         <div class="col">
                                             <div class="fv-row mb-2">
                                                 <label class="fs-6 fw-bold form-label mt-3">
@@ -261,7 +261,7 @@
 
         }
     </style>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
+  
    
     <script>
         $('#organisation_id').on('change', function () {
